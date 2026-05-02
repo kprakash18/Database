@@ -337,3 +337,23 @@ WHERE
   )
   AND t.rank = 'genus'
 ON CONFLICT (sample_id, taxon_name) DO NOTHING;
+
+
+-- sample 1 (plastic cup)
+INSERT INTO bacterial_composition 
+(sample_id, taxon_name, relative_abundance, reported_rank, measurement_type)
+VALUES
+(1, 'Lactococcus', 35, 'genus', 'relative_abundance'),
+(1, 'Oscillibacter', 27, 'genus', 'relative_abundance'),
+(1, 'Streptococcus', 22, 'genus', 'relative_abundance'),
+(1, 'Acetobacter', 6, 'genus', 'relative_abundance'),
+(1, 'Lysinibacillus', 5, 'genus', 'relative_abundance'),
+(1, 'Zymomonas', 1, 'genus', 'relative_abundance'),
+(1, 'Actinobacteria', 1, 'genus', 'relative_abundance'),
+(1, 'Komagataeibacter', 1, 'genus', 'relative_abundance'),
+(1, 'Prevotella', 1, 'genus', 'relative_abundance'),
+(1, 'Pediococcus', 1, 'genus', 'relative_abundance')
+ON CONFLICT (sample_id, taxon_name) DO UPDATE SET
+  relative_abundance = EXCLUDED.relative_abundance,
+  measurement_type = EXCLUDED.measurement_type,
+  reported_rank = EXCLUDED.reported_rank;
