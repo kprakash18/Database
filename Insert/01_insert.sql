@@ -61,3 +61,40 @@ INSERT INTO taxonomy (name, rank, reported_rank) VALUES
 ('Fusobacteria','phylum','phylum')
 
 ON CONFLICT (normalized_name, rank) DO NOTHING;
+
+--  class level
+INSERT INTO taxonomy (name, rank, reported_rank) VALUES
+('Acidomicrobiia','class','class'),
+('Bacilli','class','class'),
+('Chloroflexia','class','class'),
+('Epsilonproteobacteria','class','class'),
+('gemmatimonadetes','class','class'),
+('Oligoflexia','class','class'),
+('Sphingobacteria','class','class'),
+('Acidithiobacillia','class','class'),
+('Bacteroidia','class','class'),
+('Clostridia','class','class'),
+('Erysipelotrichia','class','class'),
+('Ignavibacteria','class','class'),
+('Anaerolineae','class','class'),
+('Verrucomicrobiae','class','class'),
+('Tissierellia','class','class'),
+('Acidobacteria','class','class'),
+('Betaproteobacteria','class','class'),
+('Coriobacteriia','class','class'),
+('fimbriimonadia','class','class'),
+('Lentisphaeria','class','class'),
+('Actinobacteria','class','class'),
+('Tapidiformia','class','class'),
+('Mollicutes','class','class'),
+('Thermomicrobia','class','class'),
+('Alphaproteobacteria','class','class'),
+('Deinococci','class','class'),
+('Fusobacteria','class','class'),
+('Rubrobacteria','class','class'),
+('Deltaproteobacteria','class','class'),
+('Gammaproteobacteria','class','class'),
+('Planctomycetia','class','class'),
+('Saprospiria','class','class'),
+('Nitrospira','class','class')
+ON CONFLICT (normalized_name, rank) DO NOTHING;
