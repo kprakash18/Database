@@ -274,3 +274,16 @@ INSERT INTO bacterial_composition (sample_id, taxon_name, tax_id, relative_abund
 (3, 'Bacilli',(SELECT tax_id FROM taxonomy WHERE normalized_name='bacilli' AND rank='class'),32, TRUE, 'class', 'relative_abundance'),
 (3, 'Tissierellia',(SELECT tax_id FROM taxonomy WHERE normalized_name='tissierellia'AND rank='class'),27, TRUE, 'class', 'relative_abundance')
 ON CONFLICT (sample_id, taxon_name) DO NOTHING;
+
+
+
+-- order level
+INSERT INTO bacterial_composition (sample_id, taxon_name, tax_id, relative_abundance, is_dominant, reported_rank, measurement_type) VALUES
+-- plastic cup
+(1, 'Lactobacillales',(SELECT tax_id FROM taxonomy WHERE normalized_name='lactobacillales' AND rank='order'),85, TRUE, 'order', 'relative_abundance'),
+-- plastic pouch
+(2, 'Bacteroidales',(SELECT tax_id FROM taxonomy WHERE normalized_name='bacteroidales' AND rank='order'),79, TRUE, 'order', 'relative_abundance'),
+-- earthen pot
+(3, 'Actinomycetales',(SELECT tax_id FROM taxonomy WHERE normalized_name='actinomycetales' AND rank='order'),51, TRUE, 'order', 'relative_abundance'),
+(3, 'Chloroflexales',(SELECT tax_id FROM taxonomy WHERE normalized_name='chloroflexales' AND rank='order'),35, TRUE, 'order', 'relative_abundance')
+ON CONFLICT (sample_id, taxon_name) DO NOTHING;
