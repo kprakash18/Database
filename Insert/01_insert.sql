@@ -376,3 +376,23 @@ ON CONFLICT (sample_id, taxon_name) DO UPDATE SET
   relative_abundance = EXCLUDED.relative_abundance,
   measurement_type = EXCLUDED.measurement_type,
   reported_rank = EXCLUDED.reported_rank;
+
+
+  -- sample 3 (earthen pot)
+INSERT INTO bacterial_composition 
+(sample_id, taxon_name, relative_abundance, reported_rank, measurement_type)
+VALUES
+(3, 'Streptococcus', 67, 'genus', 'relative_abundance'),
+(3, 'Lactobacillus', 23, 'genus', 'relative_abundance'),
+(3, 'Acetobacter', 8, 'genus', 'relative_abundance'),
+(3, 'Prevotella', 1, 'genus', 'relative_abundance'),
+(3, 'Pediococcus', 1, 'genus', 'relative_abundance'),
+(3, 'Lactococcus', 1, 'genus', 'relative_abundance'),
+(3, 'Leuconostoc', 1, 'genus', 'relative_abundance'),
+(3, 'Aeromonas', 1, 'genus', 'relative_abundance'),
+(3, 'Actinomadura', 1, 'genus', 'relative_abundance'),
+(3, 'Komagataeibacter', 1, 'genus', 'relative_abundance')
+ON CONFLICT (sample_id, taxon_name) DO UPDATE SET
+  relative_abundance = EXCLUDED.relative_abundance,
+  measurement_type = EXCLUDED.measurement_type,
+  reported_rank = EXCLUDED.reported_rank;
