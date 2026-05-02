@@ -302,3 +302,38 @@ INSERT INTO bacterial_composition (sample_id, taxon_name, tax_id, presence, repo
 (3, 'Rhodobacteraceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='rhodobacteraceae' AND rank='family'),TRUE, 'family', 'presence_only'),
 (3, 'Bacteroidaceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='bacteroidaceae'     AND rank='family'),TRUE, 'family', 'presence_only')
 ON CONFLICT (sample_id, taxon_name) DO NOTHING;
+
+
+
+-- genus level
+INSERT INTO bacterial_composition (sample_id, taxon_name, tax_id, presence, measurement_type, reported_rank)
+SELECT
+  s.sample_id,
+  t.name AS taxon_name, -- this ensures the taxon_name is inserted
+  t.tax_id,
+  TRUE,
+  'presence_only',
+  'genus'
+FROM
+  samples s,
+  taxonomy t
+WHERE
+  t.name IN (
+    'Streptococcus',
+    'Lactobacillus',
+    'Acetobacter',
+    'Prevotella',
+    'Pediococcus',
+    'Komagataeibacter',
+    'Lysinibacillus',
+    'Bacteroidetes',
+    'Oscillibacter',
+    'Ruminococcus',
+    'Lactococcus',
+    'Brevibacterium',
+    'Zymomonas',
+    'Aeromonas',
+    'Leuconostoc'
+  )
+  AND t.rank = 'genus'
+ON CONFLICT (sample_id, taxon_name) DO NOTHING;
