@@ -262,3 +262,15 @@ INSERT INTO bacterial_composition (sample_id, taxon_name, tax_id, relative_abund
 (3, 'Proteobacteria',(SELECT tax_id FROM taxonomy WHERE normalized_name='proteobacteria' AND rank='phylum'),61, TRUE, 'phylum', 'relative_abundance'),
 (3, 'Firmicutes',(SELECT tax_id FROM taxonomy WHERE normalized_name='firmicutes'AND rank='phylum'),34, TRUE, 'phylum', 'relative_abundance')
 ON CONFLICT (sample_id, taxon_name) DO NOTHING;
+
+
+-- class level
+INSERT INTO bacterial_composition (sample_id, taxon_name, tax_id, relative_abundance, is_dominant, reported_rank, measurement_type) VALUES
+-- plastic cup
+(1, 'Acidomicrobiia',(SELECT tax_id FROM taxonomy WHERE normalized_name='acidomicrobiia' AND rank='class'),88, TRUE, 'class', 'relative_abundance'),
+-- plastic pouch
+(2, 'Acidomicrobiia',(SELECT tax_id FROM taxonomy WHERE normalized_name='acidomicrobiia' AND rank='class'),71, TRUE, 'class', 'relative_abundance'),
+-- earthen pot
+(3, 'Bacilli',(SELECT tax_id FROM taxonomy WHERE normalized_name='bacilli' AND rank='class'),32, TRUE, 'class', 'relative_abundance'),
+(3, 'Tissierellia',(SELECT tax_id FROM taxonomy WHERE normalized_name='tissierellia'AND rank='class'),27, TRUE, 'class', 'relative_abundance')
+ON CONFLICT (sample_id, taxon_name) DO NOTHING;
