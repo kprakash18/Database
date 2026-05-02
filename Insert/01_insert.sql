@@ -416,3 +416,10 @@ insert into metadata (sample_id, location, collection_date) VALUES
 (1,'Malda,India','2021-07-10' ),
 (2,'Malda,India','2021-07-10' ),
 (3,'Malda,India','2021-07-10' );
+
+-- sample ↔ paper
+insert into sample_papers (sample_id, paper_id) VALUES
+(1,1),
+(2,1),
+(3,1)
+ON CONFLICT (sample_id, paper_id) DO NOTHING;
