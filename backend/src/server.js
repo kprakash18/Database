@@ -1,15 +1,12 @@
-import { pool } from './config/db.js'
 import app from "./app.js";
 import dotenv from 'dotenv'
 dotenv.config() ;
 const port = process.env.PORT ;
 
-// route testing
-app.get("/", async (req, res) => {
-    const result = await pool.query("SELECT NOW()");
-    res.json(result.rows);
-  });
+// custom routes
+import router from './routers/sampleRoutes.js';
 
+app.use('/api', router) ;
   
 
 app.listen(port, ()=>{
