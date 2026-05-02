@@ -205,3 +205,32 @@ INSERT INTO taxonomy (name, rank, reported_rank) VALUES
 ('Erythrobacteraceae','family','family'),
 ('Methylobacteriaceae','family','family')
 ON CONFLICT (normalized_name, rank) DO NOTHING;
+
+
+-- genus
+INSERT INTO taxonomy (name, rank , reported_rank) VALUES 
+('Streptococcus','genus','genus'),
+('Lactobacillus','genus','genus'),
+('Acetobacter','genus','genus'),
+('Prevotella','genus','genus'),
+('Pediococcus','genus','genus'),
+('Komagataeibacter','genus','genus'),
+('Lysinibacillus','genus','genus'),
+('Bacteroidetes','genus','genus'),
+('Oscillibacter','genus','genus'),
+('Ruminococcus','genus','genus'),
+('Lactococcus','genus','genus'),
+('Brevibacterium','genus','genus'),
+('Zymomonas','genus','genus'),
+('Aeromonas','genus','genus'),
+('Leuconostoc','genus','genus'),
+('Methylocystis', 'genus','genus'),
+('Devosia', 'genus','genus'),
+('Paludisphaera', 'genus','genus'),
+('Nitrosomonas', 'genus','genus'),
+('Haliangium', 'genus','genus'),
+('Geobacter', 'genus','genus'),
+('Arenimonas', 'genus','genus'),
+('Stenotrophomonas', 'genus','genus'),
+('Paracoccus', 'genus','genus')
+ON CONFLICT (normalized_name ,rank) DO NOTHING ;
