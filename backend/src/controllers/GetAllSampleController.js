@@ -1,5 +1,5 @@
 import {pool} from '../config/db.js'
-const getAllSamples = async(req,res)=>{
+const getAllSamplesController = async(req,res)=>{
     try{
         const result = await pool.query('SELECT * FROM samples ORDER BY sample_id') ;
         res.json(result.rows) ;
@@ -8,4 +8,4 @@ const getAllSamples = async(req,res)=>{
     }
 }
 
-export {getAllSamples} ;
+export {getAllSamplesController} ;

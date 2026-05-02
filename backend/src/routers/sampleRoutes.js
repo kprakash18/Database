@@ -1,7 +1,7 @@
 import express from 'express' ;
-import { getAllSamples } from '../controllers/GetAllSampleController.js';
+import { getAllSamplesController } from '../controllers/GetAllSampleController.js';
 const router = express.Router() ;
 
-router.get('/getallSamples', getAllSamples);
+router.get('/getallSamples', getAllSamplesController);
 
 export default router ;
