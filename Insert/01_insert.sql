@@ -234,3 +234,14 @@ INSERT INTO taxonomy (name, rank , reported_rank) VALUES
 ('Stenotrophomonas', 'genus','genus'),
 ('Paracoccus', 'genus','genus')
 ON CONFLICT (normalized_name ,rank) DO NOTHING ;
+
+
+-- species level
+INSERT INTO taxonomy (name,rank, reported_rank) VALUES
+('Ruthenibacterium lactatiformans', 'species','species'),
+('Brevibacterium linens', 'species','species'),
+('Lactococcus Lactis', 'species','species'),
+('Komagataeibacter xylinus', 'species','species'),
+('Lactobacillus fermentum','species','species'),
+('Bifidobacterium bifidum','species','species')
+ON CONFLICT (normalized_name, rank) DO NOTHING;
