@@ -287,3 +287,18 @@ INSERT INTO bacterial_composition (sample_id, taxon_name, tax_id, relative_abund
 (3, 'Actinomycetales',(SELECT tax_id FROM taxonomy WHERE normalized_name='actinomycetales' AND rank='order'),51, TRUE, 'order', 'relative_abundance'),
 (3, 'Chloroflexales',(SELECT tax_id FROM taxonomy WHERE normalized_name='chloroflexales' AND rank='order'),35, TRUE, 'order', 'relative_abundance')
 ON CONFLICT (sample_id, taxon_name) DO NOTHING;
+
+-- family level
+INSERT INTO bacterial_composition (sample_id, taxon_name, tax_id, presence, reported_rank, measurement_type) VALUES
+-- plastic cup
+(1, 'Rhodobacteraceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='rhodobacteraceae' AND rank='family'),TRUE, 'family', 'presence_only'),
+(1, 'Rubrobacteraceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='rubrobacteraceae' AND rank='family'),TRUE, 'family', 'presence_only'),
+(1, 'Streptococcaceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='streptococcaceae' AND rank='family'),TRUE, 'family', 'presence_only'),
+-- plastic pouch
+(2, 'Bacteroidaceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='bacteroidaceae'     AND rank='family'),TRUE, 'family', 'presence_only'),
+(2, 'Lactobacillaceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='lactobacillaceae' AND rank='family'),TRUE, 'family', 'presence_only'),
+(2, 'Acidobacteriaceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='acidobacteriaceae'AND rank='family'),TRUE, 'family', 'presence_only'),
+-- earthen pot
+(3, 'Rhodobacteraceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='rhodobacteraceae' AND rank='family'),TRUE, 'family', 'presence_only'),
+(3, 'Bacteroidaceae',(SELECT tax_id FROM taxonomy WHERE normalized_name='bacteroidaceae'     AND rank='family'),TRUE, 'family', 'presence_only')
+ON CONFLICT (sample_id, taxon_name) DO NOTHING;
