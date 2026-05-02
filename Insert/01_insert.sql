@@ -245,3 +245,20 @@ INSERT INTO taxonomy (name,rank, reported_rank) VALUES
 ('Lactobacillus fermentum','species','species'),
 ('Bifidobacterium bifidum','species','species')
 ON CONFLICT (normalized_name, rank) DO NOTHING;
+
+
+-- ===============================
+-- BACTERIAL COMPOSITION 
+-- ===============================
+
+-- phylum level
+INSERT INTO bacterial_composition (sample_id, taxon_name, tax_id, relative_abundance, is_dominant, reported_rank, measurement_type) VALUES
+-- plastic cup
+(1, 'Firmicutes',(SELECT tax_id FROM taxonomy WHERE normalized_name='firmicutes' AND rank='phylum'),78, TRUE, 'phylum', 'relative_abundance'),
+-- plastic pouch
+(2, 'Candidatus Gracilibacteria',(SELECT tax_id FROM taxonomy WHERE normalized_name='candidatus gracilibacteria' AND rank='phylum'),71, TRUE, 'phylum', 'relative_abundance'),
+(2, 'Fusobacteria',(SELECT tax_id FROM taxonomy WHERE normalized_name='fusobacteria' AND rank='phylum'),57, TRUE, 'phylum', 'relative_abundance'),
+-- earthen pot
+(3, 'Proteobacteria',(SELECT tax_id FROM taxonomy WHERE normalized_name='proteobacteria' AND rank='phylum'),61, TRUE, 'phylum', 'relative_abundance'),
+(3, 'Firmicutes',(SELECT tax_id FROM taxonomy WHERE normalized_name='firmicutes'AND rank='phylum'),34, TRUE, 'phylum', 'relative_abundance')
+ON CONFLICT (sample_id, taxon_name) DO NOTHING;
