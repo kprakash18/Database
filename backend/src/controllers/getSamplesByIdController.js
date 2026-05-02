@@ -1,5 +1,5 @@
 import { pool } from "../config/db.js";
-const GetSamplesById = async (req, res )=>{
+const GetSamplesByIdController = async (req, res )=>{
     try{
         const { id } = req.params ;
         const result = await pool.query(`
@@ -12,4 +12,4 @@ const GetSamplesById = async (req, res )=>{
 } ;
 
 
-export {GetSamplesById}  ;
+export {GetSamplesByIdController}  ;
