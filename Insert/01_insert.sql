@@ -29,3 +29,35 @@ INSERT INTO sample_methods (sample_id, method_id) VALUES
 (1, 1),
 (2, 2),
 (3, 3) ;
+
+-- =========================
+-- 5. TAXONOMY
+-- =========================
+INSERT INTO taxonomy (name, rank, reported_rank) VALUES
+-- phylum
+('Firmicutes', 'phylum','phylum'),
+('Candidatus Gracilibacteria', 'phylum','phylum'),
+('Fusobacteria', 'phylum','phylum'),
+('Proteobacteria','phylum','phylum'),
+('Acidobacteria','phylum','phylum'),
+('Actinobacteria','phylum','phylum'),
+('Chlamydiae','phylum','phylum'),
+('Chlorflexi','phylum','phylum'),
+('Gemmatimondadota','phylum','phylum'),
+('Ignavibacteriae','phylum','phylum'),
+('Spirochaetes','phylum','phylum'),
+('Tenericutes','phylum','phylum'),
+('Armathimonadetes','phylum','phylum'),
+('Candidatus Garcilibacteria','phylum','phylum'),
+('Cyanobacteria','phylum','phylum'),
+('Lentisphaerae','phylum','phylum'),
+('Planctomycetes','phylum','phylum'),
+('Verrucomicrobia','phylum','phylum'),
+('Candidatus Saccharibacteria','phylum','phylum'),
+('Bacteroidetes','phylum','phylum'),
+('Fusobacteria','phylum','phylum'),
+('Deinococcus Thermus','phylum','phylum'),
+('Nitrospirae','phylum','phylum'),
+('Fusobacteria','phylum','phylum')
+
+ON CONFLICT (normalized_name, rank) DO NOTHING;
