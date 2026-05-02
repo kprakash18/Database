@@ -396,3 +396,23 @@ ON CONFLICT (sample_id, taxon_name) DO UPDATE SET
   relative_abundance = EXCLUDED.relative_abundance,
   measurement_type = EXCLUDED.measurement_type,
   reported_rank = EXCLUDED.reported_rank;
+
+
+-- source paper
+INSERT INTO source_papers  (title,authors,journal,year,doi,link) VALUES
+(
+  'Bacterial taxonomic and functional diversity analysis by 16S-rRNA-based
+  metagenomic next generation sequencing of sour curd from Malda, India',
+  'Suchhanda Nandi and Shyamapada Mandal',
+'ScienceDirect',
+'2025',
+'14 October 2025',
+'https://www.sciencedirect.com/science/article/abs/pii/S2950199725002642'
+);
+
+
+-- metadata
+insert into metadata (sample_id, location, collection_date) VALUES
+(1,'Malda,India','2021-07-10' ),
+(2,'Malda,India','2021-07-10' ),
+(3,'Malda,India','2021-07-10' );
