@@ -10,11 +10,10 @@ export async function getNcbiTaxId(taxonName) {
   
       // Clean input
       const cleanName = taxonName.trim();
-      const queries = [
-        `"${cleanName}"[All Names]`,  // best for species
-        `${cleanName}[All Names]`,    // fallback
-        cleanName                    // last fallback
-      ];
+  
+      // Exact match using [All Names]
+      const query = `"${cleanName}"[All Names]`; // Wrap in quotes to preserve spaces(word with spaces )
+   
   
       const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=${encodeURIComponent(query)}&retmode=json`;
   
