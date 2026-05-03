@@ -9,6 +9,7 @@ import getBacterialCompositionBySampleId from './routers/getBacterialComposition
 import getTaxonUsingNcbi from './routers/fetchNcbiTaxonIdRouter.js'
 import fetchLineageNcbi from './routers/fetchLineageRouter.js' ;
 import parseLineageXML from './routers/parseLineageXMLRouter.js' ;
+import queryLineageIntoTaxonomy_lineage from './routers/queryRouter.js' ;
 const app = express() ;
 
 // middleware
@@ -20,6 +21,7 @@ app.use('/api', getBacterialCompositionBySampleId) ;
 app.use('/api', getTaxonUsingNcbi) ;
 app.use('/api', fetchLineageNcbi) ;
 app.use('/api', parseLineageXML) ;
+app.use('/api', queryLineageIntoTaxonomy_lineage) ;
 
 
 
