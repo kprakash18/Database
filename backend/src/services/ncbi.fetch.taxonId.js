@@ -12,7 +12,7 @@ export async function getNcbiTaxId(taxonName) {
       const cleanName = taxonName.trim();
   
       // Exact match using [All Names]
-      const query = `${cleanName}[All Names]`;
+      const query = `"${cleanName}"[All Names]`; // Wrap in quotes to preserve spaces(word with spaces )
   
       const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=${encodeURIComponent(query)}&retmode=json`;
   
