@@ -6,7 +6,7 @@ import cors from "cors";
 import getAllSamples from './routers/sampleRoutes.js';
 import getAllSamplesById from './routers/getSampleByIdRoute.js' ;
 import getBacterialCompositionBySampleId from './routers/getBacterialCompositionRouter.js';
-
+import getTaxonUsingNcbi from './routers/fetchNcbiTaxonIdRouter.js'
 const app = express() ;
 
 // middleware
@@ -15,6 +15,7 @@ app.use(express.json());
 app.use('/api', getAllSamples) ;
 app.use('/api', getAllSamplesById) ;
 app.use('/api', getBacterialCompositionBySampleId) ;
+app.use('/api', getTaxonUsingNcbi) ;
 
 
 
