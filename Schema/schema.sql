@@ -141,15 +141,53 @@ CREATE TABLE source_papers (
     link TEXT
 );
 
-=========================
-9. SAMPLE ↔ Paper
-=========================
+-- =========================
+-- 9. SAMPLE ↔ Paper
+-- =========================
 CREATE TABLE sample_papers (
     sample_id INT REFERENCES samples(sample_id) ON DELETE CASCADE,
     paper_id INT REFERENCES source_papers(paper_id),
     PRIMARY KEY (sample_id, paper_id)
 );
 
+
+
+-- Taxonomy Lineage Table
+CREATE TABLE taxonomy_lineage (
+    lineage_id SERIAL PRIMARY KEY,
+
+    -- Link to taxonomy
+    tax_id INT UNIQUE NOT NULL
+        REFERENCES taxonomy(tax_id) ON DELETE CASCADE,
+
+    -- Standard hierarchy (FAST ACCESS)
+    domain TEXT,
+    phylum TEXT,
+    class TEXT,
+    "order" TEXT,
+    family TEXT,
+    genus TEXT,
+    species TEXT,
+    strain TEXT,
+
+    -- NCBI mapping
+    ncbi_tax_id INT,
+
+    -- Full lineage (FLEXIBLE STORAGE)
+    lineage_json JSONB,
+
+    -- Quality + tracking
+    is_complete BOOLEAN DEFAULT FALSE,
+    enrichment_status TEXT DEFAULT 'pending'
+        CHECK (enrichment_status IN ('pending','completed','failed')),
+
+    source TEXT DEFAULT 'ncbi',
+
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE (tax_id)
+);
 -- =========================
 -- 10. Indexes 
 -- =========================
@@ -163,6 +201,18 @@ CREATE INDEX idx_bc_name ON bacterial_composition(LOWER(taxon_name));
 
 CREATE INDEX idx_metadata_sample ON metadata(sample_id);
 CREATE INDEX idx_seq_sample ON sample_sequences(sample_id);
+
+
+-- Fast filtering for visualization 
+CREATE INDEX idx_lineage_phylum ON taxonomy_lineage(phylum);
+CREATE INDEX idx_lineage_class ON taxonomy_lineage(class);
+CREATE INDEX idx_lineage_genus ON taxonomy_lineage(genus);
+
+-- Join performance
+CREATE INDEX idx_lineage_taxid ON taxonomy_lineage(tax_id);
+
+-- JSON queries (optional advanced)
+CREATE INDEX idx_lineage_json ON taxonomy_lineage USING GIN (lineage_json);
 
 -- =========================
 -- 11. Taxonomy Enrichment Queue
