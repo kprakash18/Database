@@ -34,7 +34,7 @@ export async function extractLineage(xml) {
       lineage.find(t => t.Rank?.[0] === rank)?.ScientificName?.[0] || null;
 
     return {
-      domain: get("superkingdom"),
+      domain: get("kingdom"),
       phylum: get("phylum"),
       class: get("class"),
       order: get("order"),
