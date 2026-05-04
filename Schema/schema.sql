@@ -225,7 +225,16 @@ CREATE TABLE taxonomy_enrichment_queue (
     attempts INT DEFAULT 0,
     last_attempt TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
 );
+-- add constraint to prevent duplicate
+ALTER TABLE taxonomy_enrichment_queue
+ADD CONSTRAINT unique_taxon UNIQUE (taxon_name);
+
+-- update table to retry failed 
+UPDATE taxonomy_enrichment_queue
+SET status='pending'
+WHERE status='failed' AND attempts < 3;
 
 
 -- function to auto check if the bacteria is present in taxo table before inserting into composition table and add it if not exist
