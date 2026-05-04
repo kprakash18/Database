@@ -11,6 +11,7 @@ import fetchLineageNcbi from './routers/fetchLineageRouter.js' ;
 import parseLineageXML from './routers/parseLineageXMLRouter.js' ;
 import queryLineageIntoTaxonomy_lineage from './routers/queryRouter.js' ;
 import enrichmentRouter from './routers/fetchLineageBatchWiseRouter.js' ;
+import visualizationRouter from './routers/visualizationRouter.js'
 const app = express() ;
 
 // middleware
@@ -24,6 +25,7 @@ app.use('/api', fetchLineageNcbi) ;
 app.use('/api', parseLineageXML) ;
 app.use('/api', queryLineageIntoTaxonomy_lineage) ;
 app.use('/api/enrichment', enrichmentRouter) ;
+app.use('/api/visualization', visualizationRouter) ;
 
 
 
