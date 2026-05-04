@@ -33,7 +33,7 @@ export async function processOneJob() {
     SELECT * FROM taxonomy_enrichment_queue
     WHERE status = 'pending'
     ORDER BY queue_id
-    LIMIT 1
+    LIMIT 5
   `);
 
   if (rows.length === 0) {
@@ -97,22 +97,84 @@ export async function processOneJob() {
     return { status: "retrying", name, error: err.message };
   }
 }
+// 
+export async function processJob(job) {
+    const name = job.taxon_name;
+  
+    try {
+      console.log("Processing:", name);
+  
+      const ncbiId = await getNcbiTaxId(name);
+      if (!ncbiId) throw new Error("No NCBI ID");
+  
+      const xml = await fetchNcbiXML(ncbiId);
+      const lineage = await extractLineage(xml);
+      if (!lineage) throw new Error("No lineage");
+  
+      await saveLineageToDB(name, ncbiId, lineage);
+  
+      await pool.query(
+        `UPDATE taxonomy_enrichment_queue
+         SET status='completed', last_attempt=NOW()
+         WHERE queue_id=$1`,
+        [job.queue_id]
+      );
+  
+      console.log("Done:", name);
+  
+    } catch (err) {
+      console.log("Failed:", name);
+  
+      if (job.attempts >= 2) {
+        await pool.query(
+          `UPDATE taxonomy_enrichment_queue
+           SET status='failed',
+               attempts = attempts + 1,
+               last_attempt=NOW()
+           WHERE queue_id=$1`,
+          [job.queue_id]
+        );
+      } else {
+        await pool.query(
+          `UPDATE taxonomy_enrichment_queue
+           SET status='pending',
+               attempts = attempts + 1,
+               last_attempt=NOW()
+           WHERE queue_id=$1`,
+          [job.queue_id]
+        );
+      }
+    }
+  }
 
 /**
  *  Run full worker (process all jobs)
+ * process in parallel
  */
 export async function runWorker() {
-  console.log("Worker started...");
-
-  while (true) {
-    const result = await processOneJob();
-
-    if (result.message === "No pending jobs") {
-      console.log("All jobs completed");
-      break;
+    console.log("Parallel Worker started...");
+  
+    while (true) {
+      const { rows } = await pool.query(`
+        SELECT * FROM taxonomy_enrichment_queue
+        WHERE status = 'pending'
+        ORDER BY queue_id
+        LIMIT 5
+      `);
+  
+      if (rows.length === 0) {
+        console.log("All jobs completed");
+        break;
+      }
+  
+      console.log(`Processing batch of ${rows.length}`);
+  
+      // run jobs in parallel
+      await Promise.all(
+        rows.map(job => processJob(job))
+      );
+  
+      // ⏱️ rate limit between batches
+      await delay(500);
     }
-
-    // Rate limit (NCBI safe) 3 samples/sec
-    await delay(400);
   }
-}
