@@ -53,7 +53,7 @@ export async function saveLineageToDB(taxoName, ncbiID, lineageData){
           ];
           
           const result = await pool.query(query, values);
-          console.log("Inserted/Updated:", taxonName);
+          console.log("Inserted/Updated:", taxoName);
     return result; 
     }catch (err){
         console.error("DB Error :", err.message) ;
