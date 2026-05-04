@@ -99,6 +99,29 @@ export async function processOneJob() {
 }
 // 
 export async function processJob(job) {
+    // CHECK IF ALREADY ENRICHED (BEFORE NCBI CALL)
+    const exists = await pool.query(
+        `SELECT 1
+        FROM taxonomy_lineage tl
+        JOIN taxonomy t ON t.tax_id = tl.tax_id
+        WHERE LOWER(t.name) = LOWER($1)
+        LIMIT 1`,
+        [name]
+    );
+  
+  if (exists.rowCount > 0) {
+    console.log("Already enriched, skipping:", name);
+  
+    await pool.query(
+      `UPDATE taxonomy_enrichment_queue
+       SET status='completed',
+           last_attempt=NOW()
+       WHERE queue_id=$1`,
+      [job.queue_id]
+    );
+  
+    return;
+  }
     const name = job.taxon_name;
   
     try {
