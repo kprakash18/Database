@@ -10,6 +10,7 @@ import getTaxonUsingNcbi from './routers/fetchNcbiTaxonIdRouter.js'
 import fetchLineageNcbi from './routers/fetchLineageRouter.js' ;
 import parseLineageXML from './routers/parseLineageXMLRouter.js' ;
 import queryLineageIntoTaxonomy_lineage from './routers/queryRouter.js' ;
+import enrichmentRouter from './routers/fetchLineageBatchWiseRouter.js' ;
 const app = express() ;
 
 // middleware
@@ -22,7 +23,7 @@ app.use('/api', getTaxonUsingNcbi) ;
 app.use('/api', fetchLineageNcbi) ;
 app.use('/api', parseLineageXML) ;
 app.use('/api', queryLineageIntoTaxonomy_lineage) ;
-
+app.use('/api/enrichment', enrichmentRouter) ;
 
 
 
