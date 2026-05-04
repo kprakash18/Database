@@ -99,6 +99,7 @@ export async function processOneJob() {
 }
 // 
 export async function processJob(job) {
+    const name = job.taxon_name;
     // CHECK IF ALREADY ENRICHED (BEFORE NCBI CALL)
     const exists = await pool.query(
         `SELECT 1
@@ -122,7 +123,7 @@ export async function processJob(job) {
   
     return;
   }
-    const name = job.taxon_name;
+    
   
     try {
       console.log("Processing:", name);
