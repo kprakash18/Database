@@ -423,3 +423,12 @@ insert into sample_papers (sample_id, paper_id) VALUES
 (2,1),
 (3,1)
 ON CONFLICT (sample_id, paper_id) DO NOTHING;
+
+
+-- populate queue using ncbi id
+INSERT INTO taxonomy_enrichment_queue (tax_id, taxon_name)
+SELECT t.tax_id, t.name
+FROM taxonomy t
+LEFT JOIN taxonomy_lineage tl ON t.tax_id = tl.tax_id
+WHERE tl.tax_id IS NULL
+ON CONFLICT (tax_id) DO NOTHING;

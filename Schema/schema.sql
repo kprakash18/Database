@@ -236,6 +236,14 @@ UPDATE taxonomy_enrichment_queue
 SET status='pending'
 WHERE status='failed' AND attempts < 3;
 
+-- update queue to use tax_id instead of taxo_name
+ALTER TABLE taxonomy_enrichment_queue
+ADD CONSTRAINT unique_tax_id UNIQUE (tax_id);
+ADD CONSTRAINT unique_queue_tax_id UNIQUE (tax_id);
+
+
+
+
 
 -- function to auto check if the bacteria is present in taxo table before inserting into composition table and add it if not exist
 CREATE OR REPLACE FUNCTION auto_handle_taxonomy()
