@@ -3,6 +3,7 @@ import { getClassLevelCompositionBySampleId } from "../services/getClassLevelCom
 export const getClassLevelCompositionController = async (req , res) => {
     try{
         const sampleId = Number(req.params.id ) ;
+        const level = req.params.level ;
         // check sample id
         if(!sampleId){
             res.status(400).json({error : "Invalid Sample Id"})
@@ -10,7 +11,7 @@ export const getClassLevelCompositionController = async (req , res) => {
         const data = await getClassLevelCompositionBySampleId(sampleId) ;
         res.status(200).json({
             sample_id : sampleId,
-            rank : "class",
+            rank : level,
             count : data.length ,
             data
         })
