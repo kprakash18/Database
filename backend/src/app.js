@@ -12,6 +12,7 @@ import parseLineageXML from './routers/parseLineageXMLRouter.js' ;
 import queryLineageIntoTaxonomy_lineage from './routers/queryRouter.js' ;
 import enrichmentRouter from './routers/fetchLineageBatchWiseRouter.js' ;
 import visualizationRouter from './routers/visualizationRouter.js'
+import GetClassLevelComposition from './routers/getClassLevelCompositionRouter.js' ;
 const app = express() ;
 
 // middleware
@@ -26,6 +27,7 @@ app.use('/api', parseLineageXML) ;
 app.use('/api', queryLineageIntoTaxonomy_lineage) ;
 app.use('/api/enrichment', enrichmentRouter) ;
 app.use('/api/visualization', visualizationRouter) ;
+app.use('/api/composition', GetClassLevelComposition) ;
 
 
 
