@@ -14,6 +14,7 @@ import enrichmentRouter from './routers/fetchLineageBatchWiseRouter.js' ;
 import visualizationRouter from './routers/visualizationRouter.js'
 import GetClassLevelComposition from './routers/getClassLevelCompositionRouter.js' ;
 import GetFullComposition from './routers/getCompleteCompositionRouter.js' ;
+import getChartValues  from './routers/getChartValuesRouter.js';
 const app = express() ;
 
 // middleware
@@ -30,6 +31,7 @@ app.use('/api/enrichment', enrichmentRouter) ;
 app.use('/api/visualization', visualizationRouter) ;
 app.use('/api/composition', GetClassLevelComposition) ;
 app.use('/api', GetFullComposition) ;
+app.use('/api', getChartValues) ;
 
 
 
