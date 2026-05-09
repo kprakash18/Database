@@ -16,6 +16,7 @@ import GetClassLevelComposition from './routers/getClassLevelCompositionRouter.j
 import GetFullComposition from './routers/getCompleteCompositionRouter.js' ;
 import getChartValues  from './routers/getChartValuesRouter.js';
 import getCompleteSummary from './routers/completeSummaryRouter.js'
+import taxonomySearch from './routers/taxonomySearchRouter.js'
 const app = express() ;
 
 // middleware
@@ -34,6 +35,7 @@ app.use('/api/composition/summary', getCompleteSummary) ;
 app.use('/api/composition/rank', GetClassLevelComposition) ;
 app.use('/api', GetFullComposition) ;
 app.use('/api', getChartValues) ;
+app.use('/api', taxonomySearch); 
 
 
 
