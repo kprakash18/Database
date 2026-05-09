@@ -1,7 +1,7 @@
 import apiClient from "./apiClient";
 
 export const getCompositionSummary = async (sampleId) => {
-  const res = await apiClient.get(`/composition/${sampleId}/summary`);
+  const res = await apiClient.get(`/composition/summary/${sampleId}`);
   return res.data;
 };
 
