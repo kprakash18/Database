@@ -5,8 +5,8 @@ export const getClassLevelCompositionController = async (req , res) => {
         const sampleId = Number(req.params.id ) ;
         const rank = req.params.rank.toLowerCase();
         // check sample id
-        if(!sampleId){
-            res.status(400).json({error : "Invalid Sample Id"})
+        if(!Number.isInteger(sampleId) || sampleId <= 0){
+            return res.status(400).json({error : "Invalid Sample Id"})
         }
         const data = await getClassLevelCompositionBySampleId(sampleId, rank) ;
         res.status(200).json({
