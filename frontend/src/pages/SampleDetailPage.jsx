@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getSampleById } from "../api/sampleApi";
 import { getCompositionSummary } from "../api/compositionApi";
+import CompositionTab from "../components/compositionTab.jsx";
 
 const SampleDetailPage = () => {
   const { sampleId } = useParams();
@@ -77,10 +78,7 @@ const SampleDetailPage = () => {
 
           {activeTab === "composition" && (
             <div>
-              <h2 className="mb-3 font-semibold">Composition by Level</h2>
-              <p className="text-sm text-slate-600">
-                Next step: add rank selector and chart/table.
-              </p>
+                <CompositionTab sampleId={sampleId} />
             </div>
           )}
 

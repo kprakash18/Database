@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SamplesPage from "./pages/samplePages.jsx";
 import SampleDetailPage from "./pages/SampleDetailPage.jsx";
-import SampleTable from "./components/sampleTable.jsx";
 
 function App() {
   return (
