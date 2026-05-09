@@ -84,10 +84,20 @@ const SampleDetailPage = () => {
 
           {activeTab === "taxonomy" && (
             <div>
-              <h2 className="mb-3 font-semibold">Taxonomy Lineage</h2>
-              <p className="text-sm text-slate-600">
-                Next step: fetch taxonomy tree and display lineage.
-              </p>
+              <div className="flex flex-col gap-3 border border-slate-300 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-semibold">Taxonomy Lineage</h2>
+                  <p className="text-sm text-slate-600">
+                    Open an interactive D3 sunburst for Domain to Species exploration.
+                  </p>
+                </div>
+                <Link
+                  to={`/taxonomy?sampleId=${sampleId}`}
+                  className="border border-slate-800 bg-slate-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-slate-700"
+                >
+                  Open Sunburst Explorer
+                </Link>
+              </div>
             </div>
           )}
         </div>
