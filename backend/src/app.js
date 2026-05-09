@@ -15,6 +15,7 @@ import visualizationRouter from './routers/visualizationRouter.js'
 import GetClassLevelComposition from './routers/getClassLevelCompositionRouter.js' ;
 import GetFullComposition from './routers/getCompleteCompositionRouter.js' ;
 import getChartValues  from './routers/getChartValuesRouter.js';
+import getCompleteSummary from './routers/completeSummaryRouter.js'
 const app = express() ;
 
 // middleware
@@ -29,7 +30,8 @@ app.use('/api', parseLineageXML) ;
 app.use('/api', queryLineageIntoTaxonomy_lineage) ;
 app.use('/api/enrichment', enrichmentRouter) ;
 app.use('/api/visualization', visualizationRouter) ;
-app.use('/api/composition', GetClassLevelComposition) ;
+app.use('/api/composition/summary', getCompleteSummary) ;
+app.use('/api/composition/rank', GetClassLevelComposition) ;
 app.use('/api', GetFullComposition) ;
 app.use('/api', getChartValues) ;
 
