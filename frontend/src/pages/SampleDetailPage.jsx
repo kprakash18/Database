@@ -93,6 +93,8 @@ const SampleDetailPage = () => {
                 </div>
                 <Link
                   to={`/taxonomy?sampleId=${sampleId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="border border-slate-800 bg-slate-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-slate-700"
                 >
                   Open Sunburst Explorer
