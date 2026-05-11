@@ -10,15 +10,15 @@ const SidebarDetails = ({ node }) => {
   const details = node?.metadata || {};
 
   return (
-    <aside className="border-l border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950 lg:w-80">
+    <aside className="border-l border-slate-300 bg-slate-50 p-4 lg:w-80">
       <div className="mb-4">
-        <div className="text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-300">
+        <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
           Selected Taxon
         </div>
-        <h2 className="mt-1 text-lg font-semibold text-slate-950 dark:text-white">
+        <h2 className="mt-1 text-lg font-semibold text-slate-950">
           {node?.scientificName || node?.name || "Life"}
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
+        <p className="text-sm text-slate-500">
           {node?.rank || "root"} · {node?.childCount ?? 0} child nodes
         </p>
       </div>
@@ -35,9 +35,9 @@ const SidebarDetails = ({ node }) => {
 };
 
 const Detail = ({ label, value }) => (
-  <div className="border-b border-slate-200 pb-2 dark:border-slate-800">
-    <div className="text-xs text-slate-500 dark:text-slate-400">{label}</div>
-    <div className="mt-1 font-medium text-slate-900 dark:text-slate-100">{value}</div>
+  <div className="border-b border-slate-200 pb-2">
+    <div className="text-xs text-slate-500">{label}</div>
+    <div className="mt-1 font-medium text-slate-900">{value}</div>
   </div>
 );
 

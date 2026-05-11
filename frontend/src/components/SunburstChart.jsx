@@ -1,16 +1,14 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as d3 from "d3";
 
-const majorGroupColors = [
-  "#0f766e",
-  "#2563eb",
-  "#be123c",
-  "#7c3aed",
-  "#ca8a04",
-  "#059669",
-  "#c2410c",
+const levelColors = [
+  "#1d4ed8",
   "#0891b2",
-  "#9333ea",
+  "#059669",
+  "#ca8a04",
+  "#dc2626",
+  "#7c3aed",
+  "#be123c",
   "#4d7c0f",
 ];
 
@@ -18,6 +16,7 @@ const chartSize = 700;
 const outerRadius = 314;
 const visibleDepth = 5;
 const transitionMs = 780;
+const labelOrientationOptions = new Set(["auto", "horizontal", "radial", "tangential"]);
 
 const getNodePath = (node) => node.ancestors().reverse().map((item) => item.data.name);
 
@@ -42,7 +41,7 @@ const SunburstChart = ({
   data,
   focusPath = ["Life"],
   highlightPath = [],
-  darkMode,
+  labelOrientation = "auto",
   onBreadcrumbChange,
   onSelectNode,
   onHover,
@@ -52,14 +51,15 @@ const SunburstChart = ({
   const highlightPathRef = useRef(highlightPath);
 
   const color = useMemo(() => {
-    const scale = d3.scaleOrdinal(majorGroupColors);
     return (node) => {
-      const major = node.ancestors().reverse()[2] || node.ancestors().reverse()[1] || node;
-      const base = d3.color(scale(major.data.name));
-      const depthShade = Math.min(node.depth * 0.08, 0.38);
-      return darkMode ? base.brighter(depthShade * 4).formatHex() : base.darker(depthShade).formatHex();
+      const base = d3.color(levelColors[Math.max(0, node.depth - 1) % levelColors.length]);
+      const siblingIndex = node.parent?.children?.indexOf(node) ?? 0;
+      const shade = (siblingIndex % 4) * 0.14;
+      return siblingIndex % 2 === 0
+        ? base.brighter(shade).formatHex()
+        : base.darker(shade).formatHex();
     };
-  }, [darkMode]);
+  }, []);
 
   useEffect(() => {
     highlightPathRef.current = highlightPath;
@@ -110,16 +110,37 @@ const SunburstChart = ({
       isVisible(node) &&
       (node.y1 - node.y0) * (node.x1 - node.x0) > 0.034 &&
       node.x1 - node.x0 > 0.018;
+    const getLabelOrientation = (node) => {
+      if (labelOrientationOptions.has(labelOrientation) && labelOrientation !== "auto") {
+        return labelOrientation;
+      }
+
+      return node.x1 - node.x0 > 0.13 ? "tangential" : "radial";
+    };
+
     const labelTransform = (node) => {
-      const x = (((node.x0 + node.x1) / 2) * 180) / Math.PI;
-      const y = ((node.y0 + node.y1) / 2) * (outerRadius / visibleDepth);
-      return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+      const angle = (node.x0 + node.x1) / 2;
+      const angleDegrees = (angle * 180) / Math.PI;
+      const radius = ((node.y0 + node.y1) / 2) * (outerRadius / visibleDepth);
+      const x = Math.cos(angle - Math.PI / 2) * radius;
+      const y = Math.sin(angle - Math.PI / 2) * radius;
+      const orientation = getLabelOrientation(node);
+
+      if (orientation === "horizontal") {
+        return `translate(${x},${y})`;
+      }
+
+      if (orientation === "tangential") {
+        const rotation = angleDegrees < 180 ? angleDegrees : angleDegrees + 180;
+        return `translate(${x},${y}) rotate(${rotation})`;
+      }
+
+      return `translate(${x},${y}) rotate(${angleDegrees - 90}) rotate(${angleDegrees < 180 ? 0 : 180})`;
     };
 
     const depthShade = (node) => {
-      const shade = Math.min(node.depth * 0.08, 0.35);
       const base = d3.color(color(node));
-      return darkMode ? base.brighter(shade * 3).formatHex() : base.darker(shade).formatHex();
+      return base.darker(Math.min(node.depth * 0.035, 0.22)).formatHex();
     };
 
     const displayedNodes = root.descendants().slice(1);
@@ -133,8 +154,8 @@ const SunburstChart = ({
       .attr("fill", (node) => depthShade(node))
       .attr("pointer-events", (node) => (isVisible(node.current) ? "auto" : "none"))
       .attr("d", (node) => arc(node.current))
-      .attr("stroke", darkMode ? "#0f172a" : "#ffffff")
-      .attr("stroke-width", 0.8)
+      .attr("stroke", "#ffffff")
+      .attr("stroke-width", 1)
       .attr("shape-rendering", "geometricPrecision")
       .style("cursor", "pointer")
       .on("mouseenter", function (event, node) {
@@ -161,9 +182,7 @@ const SunburstChart = ({
           .attr("stroke", (node) =>
             highlightPathRef.current.length && pathsEqual(getNodePath(node), highlightPathRef.current)
               ? "#facc15"
-              : darkMode
-                ? "#0f172a"
-                : "#ffffff"
+              : "#ffffff"
           )
           .attr("stroke-width", (node) =>
             highlightPathRef.current.length && pathsEqual(getNodePath(node), highlightPathRef.current)
@@ -187,12 +206,12 @@ const SunburstChart = ({
       .join("text")
       .attr("dy", "0.35em")
       .attr("display", (node) => (labelVisible(node.current) ? null : "none"))
-      .attr("fill", darkMode ? "#f8fafc" : "#0f172a")
+      .attr("fill", "#102a43")
       .attr("transform", (node) => labelTransform(node.current))
       .style("font-size", "9.5px")
       .style("font-weight", 600)
       .style("paint-order", "stroke")
-      .style("stroke", darkMode ? "#020617" : "#ffffff")
+      .style("stroke", "#ffffff")
       .style("stroke-width", 2.6)
       .text((node) => node.data.name);
 
@@ -200,8 +219,8 @@ const SunburstChart = ({
       .append("circle")
       .datum(root)
       .attr("r", 42)
-      .attr("fill", darkMode ? "#020617" : "#f8fafc")
-      .attr("stroke", darkMode ? "#1e293b" : "#cbd5e1")
+      .attr("fill", "#ffffff")
+      .attr("stroke", "#cbd5e1")
       .attr("stroke-width", 1)
       .attr("pointer-events", "all")
       .on("click", (event, node) => zoomTo(node.parent || root));
@@ -209,7 +228,7 @@ const SunburstChart = ({
     const centerLabel = svg
       .append("text")
       .attr("text-anchor", "middle")
-      .attr("fill", darkMode ? "#f8fafc" : "#0f172a")
+      .attr("fill", "#102a43")
       .style("font-size", "13px")
       .style("font-weight", 700)
       .style("pointer-events", "none")
@@ -263,7 +282,7 @@ const SunburstChart = ({
     stateRef.current.zoomTo = zoomTo;
     onSelectNode?.(root.data);
     onBreadcrumbChange?.(["Life"]);
-  }, [color, data, darkMode, onBreadcrumbChange, onHover, onSelectNode]);
+  }, [color, data, labelOrientation, onBreadcrumbChange, onHover, onSelectNode]);
 
   useEffect(() => {
     const { root, zoomTo } = stateRef.current;
@@ -283,18 +302,16 @@ const SunburstChart = ({
       .attr("stroke", (node) =>
         highlightPath.length && pathsEqual(getNodePath(node), highlightPath)
           ? "#facc15"
-          : darkMode
-            ? "#0f172a"
-            : "#ffffff"
+          : "#ffffff"
       )
       .attr("stroke-width", (node) =>
         highlightPath.length && pathsEqual(getNodePath(node), highlightPath) ? 2.6 : 0.8
       );
-  }, [highlightPath, darkMode]);
+  }, [highlightPath]);
 
   return (
-    <div className="flex items-center justify-center bg-slate-950 p-5">
-      <div className="flex aspect-square w-[min(72vw,700px)] min-w-[650px] max-w-[750px] items-center justify-center border border-slate-800 bg-slate-950 shadow-2xl shadow-black/25 max-[900px]:min-w-0 max-[900px]:w-[min(92vw,680px)]">
+    <div className="flex items-center justify-center bg-white p-5">
+      <div className="flex aspect-square w-[min(72vw,700px)] min-w-[650px] max-w-[750px] items-center justify-center border border-slate-300 bg-white shadow-xl shadow-slate-300/40 max-[900px]:min-w-0 max-[900px]:w-[min(92vw,680px)]">
         <svg ref={svgRef} className="h-full w-full" />
       </div>
     </div>
