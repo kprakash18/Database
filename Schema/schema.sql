@@ -107,8 +107,16 @@ CREATE TABLE bacterial_composition (
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    -- prevent duplicates per sample
-    UNIQUE (sample_id, taxon_name)
+     -- Better duplicate protection
+    -- Allows same bacteria in different papers
+    -- Allows same bacteria with different measurement types
+    UNIQUE (
+        paper_id,
+        sample_id,
+        tax_id,
+        reported_rank,
+        measurement_type
+    )
 );
 
 
