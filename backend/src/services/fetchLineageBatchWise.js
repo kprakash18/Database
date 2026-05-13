@@ -13,12 +13,12 @@ const delay = (ms) => new Promise(res => setTimeout(res, ms));
  */
 export async function populateQueue() {
   const result = await pool.query(`
-    INSERT INTO taxonomy_enrichment_queue (taxon_name)
-    SELECT t.name
+    INSERT INTO taxonomy_enrichment_queue (tax_id, taxon_name)
+    SELECT t.tax_id, t.name
     FROM taxonomy t
     LEFT JOIN taxonomy_lineage tl ON t.tax_id = tl.tax_id
     WHERE tl.tax_id IS NULL
-    ON CONFLICT DO NOTHING
+    ON CONFLICT (tax_id) DO NOTHING
     RETURNING *;
   `);
 

@@ -13,6 +13,16 @@ export async function saveLineageToDB(taxoName, ncbiID, lineageData){
             raw_lineage
           } = lineageData;
 
+          const lineageText = [
+            domain,
+            phylum,
+            className,
+            order,
+            family,
+            genus,
+            species
+          ].filter(Boolean).join("; ");
+
           const query = `
           INSERT INTO taxonomy_lineage (
             tax_id, domain, phylum, class, "order",
@@ -53,6 +63,16 @@ export async function saveLineageToDB(taxoName, ncbiID, lineageData){
           ];
           
           const result = await pool.query(query, values);
+
+          await pool.query(
+            `UPDATE taxonomy
+             SET ncbi_tax_id = $1,
+                 lineage = $2,
+                 is_linked = TRUE
+             WHERE LOWER(name) = LOWER($3)`,
+            [ncbiID, lineageText, taxoName]
+          );
+
           console.log("Inserted/Updated:", taxoName);
     return result; 
     }catch (err){
