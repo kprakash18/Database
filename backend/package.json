@@ -20,5 +20,8 @@
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1",
     "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "supabase": "^2.109.1"
   }
 }
