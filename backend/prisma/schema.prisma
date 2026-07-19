@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model bacterial_composition {
+  comp_id              Int       @id @default(autoincrement())
+  sample_id            Int?
+  tax_id               Int?
+  taxon_name           String
+  relative_abundance   Float?
+  read_count           Int?
+  presence             Boolean?
+  is_dominant          Boolean?
+  reported_rank        String?
+  measurement_type     String?
+  confidence_score     Float?
+  normalization_method String?
+  notes                String?
+  created_at           DateTime? @default(now()) @db.Timestamp(6)
+  samples              samples?  @relation(fields: [sample_id], references: [sample_id], onDelete: Cascade, onUpdate: NoAction)
+  taxonomy             taxonomy? @relation(fields: [tax_id], references: [tax_id], onUpdate: NoAction)
+
+  @@unique([sample_id, taxon_name, reported_rank, measurement_type], map: "unique_sample_taxon_rank_measurement")
+  @@index([sample_id], map: "idx_bc_sample")
+  @@index([tax_id], map: "idx_bc_tax")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model metadata {
+  metadata_id     Int       @id @default(autoincrement())
+  sample_id       Int?
+  location        String?
+  collection_date DateTime? @db.Date
+  temperature     Float?
+  ph              Float?
+  additional_info Json?
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+  samples         samples?  @relation(fields: [sample_id], references: [sample_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([sample_id], map: "idx_metadata_sample")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model sample_methods {
+  sample_id          Int
+  method_id          Int
+  sequencing_methods sequencing_methods @relation(fields: [method_id], references: [method_id], onDelete: NoAction, onUpdate: NoAction)
+  samples            samples            @relation(fields: [sample_id], references: [sample_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([sample_id, method_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model sample_papers {
+  sample_id     Int
+  paper_id      Int
+  source_papers source_papers @relation(fields: [paper_id], references: [paper_id], onDelete: NoAction, onUpdate: NoAction)
+  samples       samples       @relation(fields: [sample_id], references: [sample_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([sample_id, paper_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model sample_sequences {
+  sequence_id   Int      @id @default(autoincrement())
+  sample_id     Int?
+  accession_id  String?
+  external_link String?
+  notes         String?
+  samples       samples? @relation(fields: [sample_id], references: [sample_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([sample_id], map: "idx_seq_sample")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model samples {
+  sample_id             Int                     @id @default(autoincrement())
+  food_name             String
+  description           String?
+  created_at            DateTime?               @default(now()) @db.Timestamp(6)
+  bacterial_composition bacterial_composition[]
+  metadata              metadata[]
+  sample_methods        sample_methods[]
+  sample_papers         sample_papers[]
+  sample_sequences      sample_sequences[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model sequencing_methods {
+  method_id      Int              @id @default(autoincrement())
+  method_name    String?
+  platform       String?
+  target_region  String?
+  sample_methods sample_methods[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model source_papers {
+  paper_id      Int             @id @default(autoincrement())
+  title         String?
+  authors       String?
+  journal       String?
+  year          Int?
+  doi           String?
+  link          String?
+  sample_papers sample_papers[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model taxonomy {
+  tax_id                    Int                        @id @default(autoincrement())
+  name                      String
+  normalized_name           String?                    @default(dbgenerated("lower(TRIM(BOTH FROM name))"))
+  rank                      String?
+  parent_id                 Int?
+  ncbi_tax_id               Int?                       @unique
+  lineage                   String?
+  is_curated                Boolean?                   @default(false)
+  reported_rank             String?
+  is_linked                 Boolean?                   @default(false)
+  created_at                DateTime?                  @default(now()) @db.Timestamp(6)
+  bacterial_composition     bacterial_composition[]
+  taxonomy                  taxonomy?                  @relation("taxonomyTotaxonomy", fields: [parent_id], references: [tax_id], onUpdate: NoAction)
+  other_taxonomy            taxonomy[]                 @relation("taxonomyTotaxonomy")
+  taxonomy_enrichment_queue taxonomy_enrichment_queue?
+  taxonomy_lineage          taxonomy_lineage?
+
+  @@unique([normalized_name, rank])
+  @@index([normalized_name], map: "idx_tax_name")
+  @@index([ncbi_tax_id], map: "idx_tax_ncbi")
+  @@index([parent_id], map: "idx_tax_parent")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model taxonomy_enrichment_queue {
+  queue_id     Int       @id @default(autoincrement())
+  taxon_name   String?
+  status       String?   @default("pending")
+  attempts     Int?      @default(0)
+  last_attempt DateTime? @db.Timestamp(6)
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  tax_id       Int?      @unique(map: "unique_tax_id")
+  taxonomy     taxonomy? @relation(fields: [tax_id], references: [tax_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([tax_id], map: "idx_queue_tax_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model taxonomy_lineage {
+  lineage_id        Int       @id @default(autoincrement())
+  tax_id            Int       @unique
+  domain            String?
+  phylum            String?
+  class             String?
+  order             String?
+  family            String?
+  genus             String?
+  species           String?
+  strain            String?
+  ncbi_tax_id       Int?
+  lineage_json      Json?
+  is_complete       Boolean?  @default(false)
+  enrichment_status String?   @default("pending")
+  source            String?   @default("ncbi")
+  last_updated      DateTime? @default(now()) @db.Timestamp(6)
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  taxonomy          taxonomy  @relation(fields: [tax_id], references: [tax_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([class], map: "idx_lineage_class")
+  @@index([genus], map: "idx_lineage_genus")
+  @@index([lineage_json], map: "idx_lineage_json", type: Gin)
+  @@index([phylum], map: "idx_lineage_phylum")
+  @@index([tax_id], map: "idx_lineage_taxid")
+}
