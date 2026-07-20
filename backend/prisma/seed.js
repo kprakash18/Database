@@ -11,6 +11,7 @@ import riceBeerWineMizoramDataset from "./seeds/riceBeerWineMizoramSeed.js";
 import panchagavyaCowDerivativesDataset from "./seeds/panchagavyaCowDerivativesSeed.js";
 import curdRawBoiledMilkAssamDataset from "./seeds/curdRawBoiledMilkAssamSeed.js";
 import storedJaggeryUttarakhandDataset from "./seeds/storedJaggeryUttarakhandSeed.js";
+import chickenCaecalMicrobiotaDataset from "./seeds/chickenCaecalMicrobiotaSeed.js";
 import { seedFromJsonData } from "./seeds/seedFromJsonSeeder.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,6 +35,7 @@ async function main() {
   await seedFromJsonData(prisma, panchagavyaCowDerivativesDataset);
   await seedFromJsonData(prisma, curdRawBoiledMilkAssamDataset);
   await seedFromJsonData(prisma, storedJaggeryUttarakhandDataset);
+  await seedFromJsonData(prisma, chickenCaecalMicrobiotaDataset);
 
   // Define the ordered seed files and their respective export function names to execute
   const seedFiles = [
