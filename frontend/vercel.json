@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/docs",
-      "destination": "https://database-jvw0.onrender.com/api/docs"
+      "destination": "https://database-jvw0.onrender.com/api/docs/"
     },
     {
-      "source": "/api/docs/:path*",
-      "destination": "https://database-jvw0.onrender.com/api/docs/:path*"
+      "source": "/api/docs/(.*)",
+      "destination": "https://database-jvw0.onrender.com/api/docs/$1"
     },
     {
       "source": "/(.*)",
