@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import datasetData from "./seeds/seedFromJson.js";
+import { seedFromJsonData } from "./seeds/seedFromJsonSeeder.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +21,9 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   const dataset = process.env.DATASET || "dataset1";
   console.log(`=== Starting Seeding for Dataset: ${dataset} ===`);
+
+  // Seed data directly from seedFromJson.js
+  await seedFromJsonData(prisma, datasetData);
 
   // Define the ordered seed files and their respective export function names to execute
   const seedFiles = [

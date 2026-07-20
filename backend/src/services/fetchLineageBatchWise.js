@@ -176,14 +176,14 @@ export async function processJob(job) {
  * process in parallel
  */
 export async function runWorker() {
-    console.log("Parallel Worker started...");
+    console.log("Worker started...");
   
     while (true) {
       const { rows } = await pool.query(`
         SELECT * FROM taxonomy_enrichment_queue
         WHERE status = 'pending'
         ORDER BY queue_id
-        LIMIT 5
+        LIMIT 10
       `);
   
       if (rows.length === 0) {
@@ -193,12 +193,11 @@ export async function runWorker() {
   
       console.log(`Processing batch of ${rows.length}`);
   
-      // run jobs in parallel
-      await Promise.all(
-        rows.map(job => processJob(job))
-      );
+      for (const job of rows) {
+        await processJob(job);
+        await delay(350);
+      }
   
-      // ⏱️ rate limit between batches
       await delay(500);
     }
   }
