@@ -52,7 +52,7 @@ const SamplesPage = () => {
   };
 
   const filteredSamples = samples.filter((sample) => {
-    const text = `${sample.sample_id} ${sample.food_name} ${sample.description}`.toLowerCase();
+    const text = `${sample.accession_code || ''} ${sample.sample_id} ${sample.food_name} ${sample.description}`.toLowerCase();
     return text.includes(search.toLowerCase());
   });
 

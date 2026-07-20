@@ -45,7 +45,7 @@ const SampleDetailPage = () => {
           </Link>
 
           <h1 className="mt-2 text-xl font-semibold">
-            Sample Record #{sample.sample_id}: {sample.food_name}
+            Sample Record {sample.accession_code || `#${sample.sample_id}`}: {sample.food_name}
           </h1>
 
           <p className="text-sm text-slate-600">{sample.description}</p>
@@ -112,7 +112,8 @@ const RecordDetails = ({ sample, summary }) => {
   return (
     <table className="w-full border-collapse text-sm">
       <tbody>
-        <Row label="Sample ID" value={sample.sample_id} />
+        <Row label="Accession ID" value={sample.accession_code || `#${sample.sample_id}`} />
+        <Row label="Database ID" value={`#${sample.sample_id}`} />
         <Row label="Food Name" value={sample.food_name} />
         <Row label="Description" value={sample.description} />
 

@@ -1,5 +1,6 @@
 import { pool } from '../config/db.js';
 import { getPaginationParams, formatPaginatedResponse } from '../utils/pagination.js';
+import { attachFormattedId } from '../utils/formatters.js';
 
 const getAllSamplesController = async (req, res) => {
     try {
@@ -14,12 +15,14 @@ const getAllSamplesController = async (req, res) => {
                 [limit, offset]
             );
 
-            return res.json(formatPaginatedResponse(result.rows, total, page, limit));
+            const formattedRows = result.rows.map(attachFormattedId);
+            return res.json(formatPaginatedResponse(formattedRows, total, page, limit));
         }
 
         // Return all rows if pagination params not provided (backward compatible)
         const result = await pool.query('SELECT * FROM samples ORDER BY sample_id');
-        res.json(result.rows);
+        const formattedRows = result.rows.map(attachFormattedId);
+        res.json(formattedRows);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

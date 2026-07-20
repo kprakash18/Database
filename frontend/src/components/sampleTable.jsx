@@ -66,7 +66,7 @@ const SampleTable = ({
                       to={`/samples/${sample.sample_id}`}
                       className="hover:underline"
                     >
-                      #{sample.sample_id}
+                      {sample.accession_code || `#${sample.sample_id}`}
                     </Link>
                   </td>
 
