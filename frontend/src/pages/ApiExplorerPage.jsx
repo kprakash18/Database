@@ -15,12 +15,9 @@ const getEndpointDefaults = (endpoint) => {
 };
 
 const resolveFullApiUrl = (relativePath) => {
-  const apiBase =
-    import.meta.env.VITE_API_BASE_URL ||
-    (typeof window !== "undefined" &&
-    (window.location.port === "5173" || window.location.port === "5174")
-      ? "http://localhost:3000"
-      : "");
+  const isProd = import.meta.env.MODE === "production";
+  const defaultBaseUrl = isProd ? "https://database-jvw0.onrender.com" : "http://localhost:3000";
+  const apiBase = import.meta.env.VITE_API_BASE_URL || defaultBaseUrl;
   return `${apiBase}${relativePath}`;
 };
 
