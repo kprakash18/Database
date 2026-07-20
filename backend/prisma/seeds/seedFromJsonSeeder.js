@@ -1,10 +1,10 @@
 /**
- * Seeder for seedFromJson.js dataset
+ * Seeder for JSON datasets
  * @param {import('@prisma/client').PrismaClient} prisma
  * @param {object} datasetData
  */
 export async function seedFromJsonData(prisma, datasetData) {
-  console.log("=== Starting Seeding from seedFromJson.js ===");
+  console.log("=== Starting Seeding from JSON dataset ===");
 
   // 1. Seed Source Paper
   let paperId = null;
@@ -217,9 +217,15 @@ export async function seedFromJsonData(prisma, datasetData) {
       // Create/ensure pooled sample entry exists
       await getOrCreateSample(comp.sample_code, comp.food_name, comp.description);
 
-      // Target all sample IDs with this food_name (e.g. Suka ko maacha -> SM1, SM2, SM3, SM)
+      // Target all matching sample IDs (exact match or prefix match)
+      const baseName = comp.food_name.split(' ')[0];
       const matchingSamples = await prisma.samples.findMany({
-        where: { food_name: comp.food_name },
+        where: {
+          OR: [
+            { food_name: comp.food_name },
+            { food_name: { startsWith: baseName } }
+          ]
+        },
         select: { sample_id: true }
       });
       const targetSampleIds = matchingSamples.map(s => s.sample_id);
@@ -303,5 +309,5 @@ export async function seedFromJsonData(prisma, datasetData) {
     }
   }
 
-  console.log("=== Completed Seeding from seedFromJson.js Successfully ===");
+  console.log("=== Completed Seeding from JSON dataset Successfully ===");
 }
