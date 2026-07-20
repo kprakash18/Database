@@ -6,26 +6,36 @@ import TaxonomySearchRenderer from "./renderers/TaxonomySearchRenderer.jsx";
 const VisualizationRegistry = ({ responseData }) => {
   if (!responseData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[320px] rounded-lg border border-slate-300 bg-white p-6 text-center text-xs text-slate-500 shadow-sm">
-        <p className="font-bold text-slate-700">No active NCBI API query response loaded.</p>
-        <p className="mt-1 text-[11px] text-slate-500">Select an endpoint and click "Run Query (Entrez Direct ⚡)" to view live bioinformatic visualizations.</p>
+      <div style={{
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        minHeight: "320px",
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-md)",
+        backgroundColor: "var(--surface)",
+        textAlign: "center",
+        padding: "24px",
+      }}>
+        <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--ink)", margin: 0 }}>
+          No active query response loaded
+        </p>
+        <p style={{ fontSize: "12px", color: "var(--ink-muted)", marginTop: "4px", margin: 0 }}>
+          Select an endpoint and click "Execute Request" to preview response.
+        </p>
       </div>
     );
   }
 
-  const meta = responseData?.meta || {};
-  const vizType = meta.visualization || detectVisualizationType(responseData);
+  const vizType = detectVisualizationType(responseData);
 
   return (
-    <div className="space-y-4">
-      {vizType === "composition" || vizType === "compositionSummary" || vizType === "compositionTable" ? (
-        <CompositionRenderer responseData={responseData} />
-      ) : vizType === "taxonomyTree" ? (
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      {vizType === "taxonomyTree" ? (
         <TaxonomyTreeRenderer responseData={responseData} />
+      ) : vizType === "composition" ? (
+        <CompositionRenderer responseData={responseData} />
       ) : vizType === "taxonomySearch" ? (
         <TaxonomySearchRenderer responseData={responseData} />
-      ) : vizType === "samples" || vizType === "sampleDetail" ? (
-        <SamplesRenderer responseData={responseData} />
       ) : (
         <SamplesRenderer responseData={responseData} />
       )}
@@ -35,8 +45,37 @@ const VisualizationRegistry = ({ responseData }) => {
 
 function detectVisualizationType(data) {
   if (data?.tree || data?.children) return "taxonomyTree";
-  if (data?.labels || (Array.isArray(data?.data) && data?.data?.[0]?.relative_abundance !== undefined)) return "composition";
-  if (data?.matches || (Array.isArray(data?.data) && data?.data?.[0]?.ncbi_tax_id !== undefined)) return "taxonomySearch";
+  
+  // Extract data listing
+  const list = data?.data || data?.matches || data;
+  
+  if (Array.isArray(list) && list.length > 0) {
+    // Check if flat array contains parent_id mapping (meaning it is a hierarchy tree list)
+    if (list[0]?.parent_id !== undefined || list[0]?.parent_tax_id !== undefined) {
+      return "taxonomyTree";
+    }
+    // Check if it is a microbial abundance composition listing
+    if (list[0]?.relative_abundance !== undefined || list[0]?.taxon_name !== undefined || list[0]?.value !== undefined) {
+      return "composition";
+    }
+    // Check if it is search results
+    if (
+      list[0]?.ncbi_tax_id !== undefined || 
+      list[0]?.tax_id !== undefined ||
+      list[0]?.ncbiTaxId !== undefined ||
+      list[0]?.taxonomyId !== undefined ||
+      list[0]?.scientificName !== undefined ||
+      list[0]?.path !== undefined
+    ) {
+      return "taxonomySearch";
+    }
+  }
+
+  // Check if it has dominant taxonomic levels
+  if (data?.dominant_within_each_level || data?.data?.dominant_within_each_level) {
+    return "composition";
+  }
+
   return "samples";
 }
 

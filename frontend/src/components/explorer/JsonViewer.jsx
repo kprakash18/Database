@@ -2,99 +2,139 @@ import { useState } from "react";
 
 const JsonViewer = ({ data }) => {
   const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState("pretty"); // pretty, raw
 
   if (!data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[320px] rounded-lg border border-slate-300 bg-white p-6 text-center text-xs text-slate-500 shadow-sm">
-        <p className="font-semibold text-slate-700">No NCBI data response loaded.</p>
-        <p className="mt-1 text-[11px] text-slate-500">Execute query to inspect JSON payload.</p>
+      <div style={{
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        minHeight: "320px",
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-md)",
+        backgroundColor: "var(--surface)",
+        textAlign: "center",
+        gap: "8px",
+      }}>
+        <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--ink)", margin: 0 }}>
+          No response payload available
+        </p>
+        <p style={{ fontSize: "13px", color: "var(--ink-muted)", margin: 0 }}>
+          Execute an API request to inspect the raw JSON response.
+        </p>
       </div>
     );
   }
 
-  const jsonString = JSON.stringify(data, null, 2);
+  const prettyJson = JSON.stringify(data, null, 2);
+  const rawJson = JSON.stringify(data);
+  const activeJson = viewMode === "pretty" ? prettyJson : rawJson;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(jsonString);
+    navigator.clipboard.writeText(activeJson);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleDownloadJson = () => {
-    const blob = new Blob([jsonString], { type: "application/json" });
+  const handleDownload = () => {
+    const blob = new Blob([prettyJson], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `ncbi-record-${Date.now()}.json`;
+    a.download = "response.json";
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const handleExportCsv = () => {
-    const list = Array.isArray(data?.data)
-      ? data.data
-      : Array.isArray(data?.matches)
-      ? data.matches
-      : Array.isArray(data)
-      ? data
-      : null;
+  const btnStyle = (active) => ({
+    padding: "4px 10px",
+    fontSize: "12px", fontWeight: 500,
+    fontFamily: "var(--sans)",
+    color: active ? "#f9fafb" : "#6b7280",
+    backgroundColor: active ? "#1f2937" : "transparent",
+    border: "none",
+    borderRadius: "var(--radius-sm)",
+    cursor: "pointer",
+    transition: "color 100ms, background-color 100ms",
+  });
 
-    if (!list || list.length === 0) {
-      alert("No tabular array data found in response to export CSV.");
-      return;
-    }
-
-    const headers = Object.keys(list[0]).filter((k) => typeof list[0][k] !== "object");
-    const csvRows = [
-      headers.join(","),
-      ...list.map((row) =>
-        headers.map((h) => JSON.stringify(row[h] ?? "")).join(",")
-      ),
-    ];
-
-    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `ncbi-microbiome-${Date.now()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  // Calculate lines for Pretty mode line numbers
+  const lines = activeJson.split("\n");
 
   return (
-    <div className="rounded-lg border border-slate-300 bg-white overflow-hidden shadow-sm flex flex-col h-full min-h-[420px]">
-      {/* Action Header */}
-      <div className="flex flex-wrap items-center justify-between border-b border-slate-200 bg-slate-100 px-4 py-2.5 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-slate-700 font-bold">JSON Payload Inspector</span>
-          <span className="text-[10px] font-mono text-slate-500">({jsonString.length} bytes)</span>
+    <div style={{
+      backgroundColor: "#0f1117",
+      borderRadius: "var(--radius-md)",
+      overflow: "hidden",
+      fontFamily: "var(--mono)",
+      border: "1px solid #1f2937",
+    }}>
+      {/* Header toolbar */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "10px 16px",
+        borderBottom: "1px solid #1f2937",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <button style={btnStyle(viewMode === "pretty")} onClick={() => setViewMode("pretty")}>
+            Pretty
+          </button>
+          <button style={btnStyle(viewMode === "raw")} onClick={() => setViewMode("raw")}>
+            Raw
+          </button>
         </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleCopy}
-            className="rounded border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 transition"
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button style={btnStyle(false)} onClick={handleCopy}
+            onMouseEnter={e => e.currentTarget.style.color = "#d1d5db"}
+            onMouseLeave={e => e.currentTarget.style.color = copied ? "#6ee7b7" : "#6b7280"}
           >
-            {copied ? "✓ Copied!" : "Copy JSON"}
+            {copied ? "Copied ✓" : "Copy"}
           </button>
-          <button
-            onClick={handleDownloadJson}
-            className="rounded border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 transition"
+          <button style={btnStyle(false)} onClick={handleDownload}
+            onMouseEnter={e => e.currentTarget.style.color = "#d1d5db"}
+            onMouseLeave={e => e.currentTarget.style.color = "#6b7280"}
           >
-            Download JSON
-          </button>
-          <button
-            onClick={handleExportCsv}
-            className="rounded border border-blue-600 bg-blue-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-blue-700 transition"
-          >
-            Export CSV/TSV
+            Download ↓
           </button>
         </div>
       </div>
 
-      <pre className="p-4 overflow-auto font-mono text-xs leading-relaxed max-h-[500px] flex-1 bg-slate-950 text-emerald-400">
-        <code>{jsonString}</code>
-      </pre>
+      {/* Code body with optional Line numbers */}
+      <div style={{
+        display: "flex",
+        fontSize: "13px",
+        lineHeight: 1.7,
+        maxHeight: "520px",
+        overflowY: "auto",
+        backgroundColor: "#0f1117",
+      }}>
+        {/* Line numbers column (only for pretty mode) */}
+        {viewMode === "pretty" && (
+          <div style={{
+            padding: "20px 0 20px 16px",
+            color: "#374151",
+            textAlign: "right",
+            userSelect: "none",
+            borderRight: "1px solid #1f2937",
+            backgroundColor: "#0f1117",
+            minWidth: "40px",
+          }}>
+            {lines.map((_, idx) => (
+              <div key={idx} style={{ paddingRight: "8px" }}>{idx + 1}</div>
+            ))}
+          </div>
+        )}
+
+        <pre style={{
+          margin: 0,
+          padding: "20px",
+          color: "#6ee7b7",
+          overflowX: "auto",
+          flex: 1,
+        }}>
+          <code>{activeJson}</code>
+        </pre>
+      </div>
     </div>
   );
 };

@@ -1,32 +1,33 @@
 import {
   fetchNcbiLineageTree,
-  getPhylumDistribution,
-  getGenusDistribution,
+  getRankDistributionService,
+  getTaxonomyStackedDataService,
   getSunburstTaxonomyTree,
-  getTaxonomyStackedData,
   searchSunburstTaxonomy,
 } from '../services/visualizationService.js';
 import { parseSampleId, formatSampleId } from '../utils/formatters.js';
 
-export const phylumDistribution = async (req, res) => {
+export const rankDistribution = async (req, res) => {
   try {
     const sampleId = parseSampleId(req.params.sampleId);
+    const rank = String(req.params.rank || 'phylum').toLowerCase();
 
     if (!sampleId) {
       return res.status(400).json({ error: "Invalid sample id" });
     }
 
-    const data = await getPhylumDistribution(sampleId);
+    const data = await getRankDistributionService(sampleId, rank);
 
     res.json({
       meta: {
-        title: `Phylum Distribution - ${formatSampleId(sampleId)}`,
+        title: `${rank.charAt(0).toUpperCase() + rank.slice(1)} Distribution - ${formatSampleId(sampleId)}`,
         visualization: 'composition',
-        level: 'phylum',
+        level: rank,
+        supportedCharts: ['pie', 'bar', 'table'],
       },
       sample_id: sampleId,
       accession_code: formatSampleId(sampleId),
-      level: "phylum",
+      level: rank,
       data
     });
   } catch (err) {
@@ -34,43 +35,18 @@ export const phylumDistribution = async (req, res) => {
   }
 };
 
-export const genusDistribution = async (req, res) => {
+export const stackedRankDistribution = async (req, res) => {
   try {
-    const sampleId = parseSampleId(req.params.sampleId);
-
-    if (!sampleId) {
-      return res.status(400).json({ error: "Invalid sample id" });
-    }
-
-    const data = await getGenusDistribution(sampleId);
+    const rank = String(req.params.rank || 'phylum').toLowerCase();
+    const data = await getTaxonomyStackedDataService(rank);
 
     res.json({
       meta: {
-        title: `Genus Distribution - ${formatSampleId(sampleId)}`,
-        visualization: 'composition',
-        level: 'genus',
-      },
-      sample_id: sampleId,
-      accession_code: formatSampleId(sampleId),
-      level: "genus",
-      data
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-export const stackedPhylumDistribution = async (req, res) => {
-  try {
-    const data = await getTaxonomyStackedData();
-
-    res.json({
-      meta: {
-        title: 'Stacked Phylum Distribution across Samples',
+        title: `Stacked ${rank.charAt(0).toUpperCase() + rank.slice(1)} Distribution across Samples`,
         visualization: 'composition',
       },
       chart_type: "stacked_bar",
-      level: "phylum",
+      level: rank,
       data
     });
   } catch (err) {
