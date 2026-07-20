@@ -19,6 +19,11 @@ export const phylumDistribution = async (req, res) => {
     const data = await getPhylumDistribution(sampleId);
 
     res.json({
+      meta: {
+        title: `Phylum Distribution - ${formatSampleId(sampleId)}`,
+        visualization: 'composition',
+        level: 'phylum',
+      },
       sample_id: sampleId,
       accession_code: formatSampleId(sampleId),
       level: "phylum",
@@ -40,6 +45,11 @@ export const genusDistribution = async (req, res) => {
     const data = await getGenusDistribution(sampleId);
 
     res.json({
+      meta: {
+        title: `Genus Distribution - ${formatSampleId(sampleId)}`,
+        visualization: 'composition',
+        level: 'genus',
+      },
       sample_id: sampleId,
       accession_code: formatSampleId(sampleId),
       level: "genus",
@@ -55,6 +65,10 @@ export const stackedPhylumDistribution = async (req, res) => {
     const data = await getTaxonomyStackedData();
 
     res.json({
+      meta: {
+        title: 'Stacked Phylum Distribution across Samples',
+        visualization: 'composition',
+      },
       chart_type: "stacked_bar",
       level: "phylum",
       data
@@ -76,10 +90,18 @@ export const sunburstTaxonomyTree = async (req, res) => {
     const data = await getSunburstTaxonomyTree({ sampleId, limit });
 
     res.json({
+      meta: {
+        title: `Taxonomy Hierarchy Tree - ${sampleId ? formatSampleId(sampleId) : 'All Datasets'}`,
+        visualization: 'taxonomyTree',
+        sample_id: sampleId,
+        accession_code: formatSampleId(sampleId),
+        supportedCharts: ['sunburst', 'tree'],
+      },
       chart_type: "sunburst",
       sample_id: sampleId,
       accession_code: formatSampleId(sampleId),
       ...data,
+      tree: data.tree || data,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -92,7 +114,11 @@ export const sunburstTaxonomySearch = async (req, res) => {
     const sampleId = req.query.sampleId ? parseSampleId(req.query.sampleId) : null;
 
     if (!query) {
-      return res.json({ query, matches: [] });
+      return res.json({
+        meta: { title: 'Taxonomy Search', visualization: 'taxonomySearch' },
+        query,
+        matches: [],
+      });
     }
 
     if (req.query.sampleId && !sampleId) {
@@ -100,7 +126,16 @@ export const sunburstTaxonomySearch = async (req, res) => {
     }
 
     const matches = await searchSunburstTaxonomy({ query, sampleId });
-    res.json({ query, matches });
+    res.json({
+      meta: {
+        title: `Taxonomy Search ("${query}")`,
+        visualization: 'taxonomySearch',
+        query,
+        count: matches.length,
+      },
+      query,
+      matches,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -115,7 +150,13 @@ export const ncbiLineageSunburst = async (req, res) => {
     }
 
     const data = await fetchNcbiLineageTree(ncbiTaxId);
-    res.json(data);
+    res.json({
+      meta: {
+        title: `NCBI Lineage Tree (Tax ID #${ncbiTaxId})`,
+        visualization: 'taxonomyTree',
+      },
+      ...data,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

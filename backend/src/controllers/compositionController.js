@@ -8,10 +8,18 @@ import { formatSampleId } from '../utils/formatters.js';
 export const getCompositionChartValues = async (req, res, next) => {
   try {
     const rawSampleId = req.params.id || req.params.sampleId;
-    const rank = req.params.rank;
+    const rank = req.params.rank || 'genus';
 
     const data = await getCompositionChartDataService(rawSampleId, rank);
     res.json({
+      meta: {
+        title: `Relative Abundance (${rank.toUpperCase()}) - ${formatSampleId(rawSampleId)}`,
+        visualization: 'composition',
+        sample_id: Number(rawSampleId) || rawSampleId,
+        accession_code: formatSampleId(rawSampleId),
+        rank: rank?.toLowerCase(),
+        supportedCharts: ['pie', 'bar', 'table'],
+      },
       sample_id: Number(rawSampleId) || rawSampleId,
       accession_code: formatSampleId(rawSampleId),
       rank: rank?.toLowerCase(),
@@ -31,8 +39,13 @@ export const getCompositionSummary = async (req, res, next) => {
     const summary = await getCompositionSummaryService(rawSampleId);
 
     res.json({
+      meta: {
+        title: `Composition Summary - ${formatSampleId(rawSampleId)}`,
+        visualization: 'compositionSummary',
+        sample_id: summary.sample_id,
+        accession_code: summary.accession_code,
+      },
       success: true,
-      message: 'Advanced composition summary fetched successfully',
       ...summary,
       data: summary,
     });
@@ -44,10 +57,17 @@ export const getCompositionSummary = async (req, res, next) => {
 export const getFullComposition = async (req, res, next) => {
   try {
     const rawSampleId = req.params.id || req.params.sampleId;
-    const rank = req.params.rank;
+    const rank = req.params.rank || 'genus';
 
     const data = await getFullCompositionService(rawSampleId, rank);
     res.json({
+      meta: {
+        title: `Full Composition Table (${rank.toUpperCase()}) - ${formatSampleId(rawSampleId)}`,
+        visualization: 'compositionTable',
+        sample_id: Number(rawSampleId) || rawSampleId,
+        accession_code: formatSampleId(rawSampleId),
+        rank: rank?.toLowerCase(),
+      },
       sample_id: Number(rawSampleId) || rawSampleId,
       accession_code: formatSampleId(rawSampleId),
       rank: rank?.toLowerCase(),
