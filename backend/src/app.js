@@ -15,6 +15,9 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
+// Enable trust proxy for reverse proxy platforms (Render, Railway, Heroku)
+app.set('trust proxy', 1);
+
 // Security headers (helmet)
 app.use(helmet({
   contentSecurityPolicy: false, // Disabled to allow Swagger UI to load external scripts
@@ -33,7 +36,7 @@ app.use('/api', limiter);
 
 // Middlewares
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));

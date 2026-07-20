@@ -1,23 +1,21 @@
+const explorerUrl = process.env.FRONTEND_URL || 'http://localhost:5173/explorer';
+const websiteUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
 export const swaggerSpec = {
   openapi: '3.0.0',
   info: {
     title: 'Indian Food Microbiome Database API',
     version: '1.0.0',
     description:
-      'Comprehensive RESTful API for searching, analyzing, and visualizing metagenomic profiles, 16S rRNA sequencing data, and taxonomy hierarchies across traditional Indian fermented foods and microbiomes.\n\n⚡ **Interactive API Explorer & Live Sandbox**: Launch the interactive API Explorer at [http://localhost:5173/explorer](http://localhost:5173/explorer) to execute live API calls, inspect JSON responses, and view synchronized D3 Sunburst & Donut visualizations.',
+      `Comprehensive RESTful API for searching, analyzing, and visualizing metagenomic profiles, 16S rRNA sequencing data, and taxonomy hierarchies across traditional Indian fermented foods and microbiomes.\n\n⚡ **Interactive API Explorer & Live Sandbox**: Launch the [Interactive API Sandbox](${explorerUrl}) to execute live API calls, inspect JSON responses, and view synchronized D3 Sunburst & Donut visualizations.`,
     contact: {
       name: 'Indian Food Microbiome Team',
-      url: 'https://github.com/kprakash18/Database',
+      url: websiteUrl,
     },
   },
   servers: [
     {
-      url: 'http://localhost:3000/api',
-      description: 'Local Development Server (Port 3000)',
-    },
-    {
-      url: 'https://indian-food-db.onrender.com/api',
-      description: 'Production API Server',
+      url: process.env.NODE_ENV === 'production' ? 'Production' : 'Development',
     },
   ],
   tags: [
@@ -51,7 +49,7 @@ export const swaggerSpec = {
           'Returns connection details for the interactive 3-pane API Explorer sandbox UI (Stripe/NASA style) for live endpoint testing, JSON inspection, and D3 visual rendering.',
         externalDocs: {
           description: 'Open Interactive API Explorer UI in Browser',
-          url: 'http://localhost:5173/explorer',
+          url: explorerUrl,
         },
         responses: {
           200: {
@@ -74,7 +72,7 @@ export const swaggerSpec = {
                     },
                     url: {
                       type: 'string',
-                      example: 'http://localhost:5173/explorer',
+                      example: explorerUrl,
                     },
                   },
                 },
