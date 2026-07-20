@@ -1,42 +1,32 @@
-import express  from 'express'
-import cors from "cors";
+import express from 'express';
+import cors from 'cors';
 
+// Domain routes
+import sampleRoutes from './routes/sampleRoutes.js';
+import compositionRoutes from './routes/compositionRoutes.js';
+import taxonomyRoutes from './routes/taxonomyRoutes.js';
+import visualizationRoutes from './routes/visualizationRoutes.js';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
-// custom routes
-import getAllSamples from './routers/sampleRoutes.js';
-import getAllSamplesById from './routers/getSampleByIdRoute.js' ;
-import getTaxonomyBySampleId from './routers/getTaxonomyRouter.js';
-import getTaxonUsingNcbi from './routers/fetchNcbiTaxonIdRouter.js'
-import fetchLineageNcbi from './routers/fetchLineageRouter.js' ;
-import parseLineageXML from './routers/parseLineageXMLRouter.js' ;
-import queryLineageIntoTaxonomy_lineage from './routers/queryRouter.js' ;
-import enrichmentRouter from './routers/fetchLineageBatchWiseRouter.js' ;
-import visualizationRouter from './routers/visualizationRouter.js'
-import GetClassLevelComposition from './routers/getClassLevelCompositionRouter.js' ;
-import GetFullComposition from './routers/getCompleteCompositionRouter.js' ;
-import getChartValues  from './routers/getChartValuesRouter.js';
-import getCompleteSummary from './routers/completeSummaryRouter.js'
-import taxonomySearch from './routers/taxonomySearchRouter.js'
-const app = express() ;
+const app = express();
 
-// middleware
+// Middlewares
 app.use(cors());
 app.use(express.json());
-app.use('/api', getAllSamples) ;
-app.use('/api', getAllSamplesById) ;
-app.use('/api', getTaxonomyBySampleId) ;
-app.use('/api', getTaxonUsingNcbi) ;
-app.use('/api', fetchLineageNcbi) ;
-app.use('/api', parseLineageXML) ;
-app.use('/api', queryLineageIntoTaxonomy_lineage) ;
-app.use('/api/enrichment', enrichmentRouter) ;
-app.use('/api/visualization', visualizationRouter) ;
-app.use('/api/composition/summary', getCompleteSummary) ;
-app.use('/api/composition/rank', GetClassLevelComposition) ;
-app.use('/api', GetFullComposition) ;
-app.use('/api', getChartValues) ;
-app.use('/api', taxonomySearch); 
 
+// Domain API Route mounts
+app.use('/api/samples', sampleRoutes);
+app.use('/api/composition', compositionRoutes);
+app.use('/api/taxonomy', taxonomyRoutes);
+app.use('/api/visualization', visualizationRoutes);
 
+// Legacy backward compatibility route aliases
+app.use('/api', sampleRoutes);
+app.use('/api', compositionRoutes);
+app.use('/api', taxonomyRoutes);
 
-export default app ;
+// Global Error Handlers
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+export default app;
