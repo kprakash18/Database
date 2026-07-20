@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 
 // Domain routes
 import sampleRoutes from './routes/sampleRoutes.js';
@@ -13,6 +15,13 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// OpenAPI Swagger UI Documentation
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 // Domain API Route mounts
 app.use('/api/samples', sampleRoutes);
