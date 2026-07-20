@@ -1,5 +1,8 @@
-const explorerUrl = process.env.FRONTEND_URL || 'http://localhost:5173/explorer';
-const websiteUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const isProd = process.env.NODE_ENV === 'production';
+const defaultFrontend = isProd ? 'https://database-sandy-seven.vercel.app' : 'http://localhost:5173';
+const baseFrontendUrl = (process.env.FRONTEND_URL || defaultFrontend).replace(/\/explorer\/?$/, '');
+const explorerUrl = `${baseFrontendUrl}/explorer`;
+const websiteUrl = baseFrontendUrl;
 
 export const swaggerSpec = {
   openapi: '3.0.0',
@@ -21,7 +24,7 @@ export const swaggerSpec = {
   tags: [
     {
       name: 'Explorer',
-      description: 'Interactive API Explorer sandbox UI (Stripe / NASA style)',
+      description: 'Interactive API Explorer sandbox UI',
     },
     {
       name: 'Samples',
@@ -46,7 +49,7 @@ export const swaggerSpec = {
         tags: ['Explorer'],
         summary: 'Open the Interactive API Explorer & Visualization Sandbox',
         description:
-          'Returns connection details for the interactive 3-pane API Explorer sandbox UI (Stripe/NASA style) for live endpoint testing, JSON inspection, and D3 visual rendering.',
+          'Returns connection details for the interactive 3-pane API Explorer sandbox UI for live endpoint testing, JSON inspection, and D3 visual rendering.',
         externalDocs: {
           description: 'Open Interactive API Explorer UI in Browser',
           url: explorerUrl,
