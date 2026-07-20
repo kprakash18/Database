@@ -9,11 +9,20 @@ dotenv.config();
 // Local dev: falls back to SUPABASE_URI or DATABASE_URL
 const connectionString = process.env.SUPABASE_URI || process.env.DATABASE_URL;
 
+// Safety Guard: Stop backend execution immediately if local development points to production Supabase
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (!isProduction && connectionString && connectionString.includes('supabase')) {
+  throw new Error(
+    '💥 SAFETY GUARD BLOCKED STARTUP: Local development environment is attempting to connect to a production Supabase instance! ' +
+    'Please verify that SUPABASE_URI is commented out or removed from your local .env file.'
+  );
+}
+
 // PostgreSQL Pool Connection Instance
-// max: cap concurrent connections (Supabase free tier allows ~15-20)
 export const pool = new pg.Pool({
   connectionString,
-  ssl: { rejectUnauthorized: false },
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
   max: parseInt(process.env.DATABASE_POOL_MAX || '10', 10),
   idleTimeoutMillis: 30000,      // Close idle connections after 30s
   connectionTimeoutMillis: 5000, // Fail fast if DB is unreachable
