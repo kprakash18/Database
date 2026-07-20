@@ -47,7 +47,19 @@ const CompositionRenderer = ({ responseData }) => {
 
   const meta = responseData?.meta || {};
   const rawList =
-    Array.isArray(responseData?.data)
+    Array.isArray(responseData?.dominant_within_each_level)
+      ? responseData.dominant_within_each_level.map((item) => ({
+          label: `${item.reported_rank.toUpperCase()}: ${item.taxon_name}`,
+          value: item.relative_abundance || 0,
+          is_dominant: item.is_dominant,
+        }))
+      : Array.isArray(responseData?.data?.dominant_within_each_level)
+      ? responseData.data.dominant_within_each_level.map((item) => ({
+          label: `${item.reported_rank.toUpperCase()}: ${item.taxon_name}`,
+          value: item.relative_abundance || 0,
+          is_dominant: item.is_dominant,
+        }))
+      : Array.isArray(responseData?.data)
       ? responseData.data
       : Array.isArray(responseData?.values)
       ? responseData.values.map((v, i) => ({

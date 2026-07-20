@@ -1,11 +1,56 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 
+/* ── Reconstruct tree nodes from flat list containing parent_id ── */
+function buildTreeFromFlatList(flatList) {
+  if (!Array.isArray(flatList) || flatList.length === 0) return null;
+
+  const map = {};
+  const roots = [];
+
+  flatList.forEach((node) => {
+    const id = node.tax_id || node.ncbi_tax_id || node.id;
+    if (id !== undefined) {
+      map[id] = {
+        ...node,
+        name: node.name || node.scientificName || `Tax ID ${id}`,
+        children: [],
+      };
+    }
+  });
+
+  flatList.forEach((node) => {
+    const id = node.tax_id || node.ncbi_tax_id || node.id;
+    const parentId = node.parent_id || node.parent_tax_id;
+    const mapped = map[id];
+    if (mapped) {
+      if (parentId !== undefined && parentId !== null && map[parentId]) {
+        map[parentId].children.push(mapped);
+      } else {
+        roots.push(mapped);
+      }
+    }
+  });
+
+  if (roots.length === 1) {
+    return roots[0];
+  } else if (roots.length > 1) {
+    return {
+      name: "Bacterial Lineage Root",
+      children: roots,
+    };
+  }
+  return null;
+}
+
 const TaxonomyTreeRenderer = ({ responseData }) => {
   const [chartType, setChartType] = useState("sunburst"); // "sunburst" | "collapsibleTree"
   const svgRef = useRef(null);
   const meta = responseData?.meta || {};
-  const treeData = responseData?.tree || responseData?.data || responseData;
+  
+  // Extract and build D3 tree
+  const rawTreeData = responseData?.tree || responseData?.data || responseData;
+  const treeData = Array.isArray(rawTreeData) ? buildTreeFromFlatList(rawTreeData) : rawTreeData;
 
   useEffect(() => {
     if (!treeData || !svgRef.current) return;
@@ -13,15 +58,19 @@ const TaxonomyTreeRenderer = ({ responseData }) => {
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    if (chartType === "sunburst") {
-      renderSunburst(svg, treeData);
-    } else {
-      renderCollapsibleTree(svg, treeData);
+    try {
+      if (chartType === "sunburst") {
+        renderSunburst(svg, treeData);
+      } else {
+        renderCollapsibleTree(svg, treeData);
+      }
+    } catch (err) {
+      console.error("D3 taxonomy rendering failed:", err);
     }
   }, [treeData, chartType]);
 
   return (
-    <div className="rounded-lg border border-slate-300 bg-white p-5 space-y-4 shadow-sm">
+    <div className="rounded-lg border border-slate-300 bg-white p-5 space-y-4 shadow-sm" style={{ fontFamily: "var(--sans)" }}>
       {/* View Mode Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
         <div>
@@ -39,21 +88,25 @@ const TaxonomyTreeRenderer = ({ responseData }) => {
         <div className="inline-flex rounded-md border border-slate-300 bg-slate-100 p-0.5 text-xs font-bold shadow-xs">
           <button
             onClick={() => setChartType("sunburst")}
-            className={`rounded px-3 py-1.5 transition ${
-              chartType === "sunburst"
-                ? "bg-blue-700 text-white shadow-xs"
-                : "text-slate-700 hover:text-slate-900"
-            }`}
+            style={{
+              padding: "6px 12px", border: "none", cursor: "pointer",
+              borderRadius: "var(--radius-sm)",
+              backgroundColor: chartType === "sunburst" ? "var(--ink)" : "transparent",
+              color: chartType === "sunburst" ? "var(--surface)" : "var(--ink-muted)",
+              fontWeight: 600,
+            }}
           >
             Sunburst Wheel
           </button>
           <button
             onClick={() => setChartType("collapsibleTree")}
-            className={`rounded px-3 py-1.5 transition ${
-              chartType === "collapsibleTree"
-                ? "bg-blue-700 text-white shadow-xs"
-                : "text-slate-700 hover:text-slate-900"
-            }`}
+            style={{
+              padding: "6px 12px", border: "none", cursor: "pointer",
+              borderRadius: "var(--radius-sm)",
+              backgroundColor: chartType === "collapsibleTree" ? "var(--ink)" : "transparent",
+              color: chartType === "collapsibleTree" ? "var(--surface)" : "var(--ink-muted)",
+              fontWeight: 600,
+            }}
           >
             Hierarchy Tree
           </button>
@@ -62,14 +115,18 @@ const TaxonomyTreeRenderer = ({ responseData }) => {
 
       {/* SVG Container */}
       <div className="flex items-center justify-center min-h-[420px] rounded border border-slate-200 bg-slate-50 p-4">
-        <svg ref={svgRef} className="max-w-full h-auto" />
+        {!treeData ? (
+          <span style={{ fontSize: "12px", color: "var(--ink-faint)" }}>No tree lineage data structure could be parsed.</span>
+        ) : (
+          <svg ref={svgRef} className="max-w-full h-auto" />
+        )}
       </div>
     </div>
   );
 };
 
 function renderSunburst(svg, data) {
-  const width = 450;
+  const width = 400;
   const radius = width / 2;
 
   svg

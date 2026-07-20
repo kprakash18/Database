@@ -18,6 +18,14 @@ export const getAllSamplesService = async ({ limit = 20, offset = 0, search = ''
       orderBy: { sample_id: 'asc' },
       take: limit,
       skip: offset,
+      include: {
+        metadata: true,
+        sample_papers: {
+          include: {
+            source_papers: true,
+          },
+        },
+      },
     }),
   ]);
 
@@ -38,6 +46,16 @@ export const getSampleByIdService = async (rawId) => {
     include: {
       metadata: true,
       sample_sequences: true,
+      sample_methods: {
+        include: {
+          sequencing_methods: true,
+        },
+      },
+      sample_papers: {
+        include: {
+          source_papers: true,
+        },
+      },
     },
   });
 
