@@ -1,0 +1,77 @@
+export const ENDPOINTS = [
+  {
+    id: "get-samples",
+    category: "Metagenomic Samples",
+    name: "List Metagenome Records",
+    method: "GET",
+    path: "/api/samples",
+    entrezCommand: "esearch -db sample -query 'Indian Fermented Foods'",
+    description: "Query and retrieve paginated metagenomic sample records, sequencing metadata, and food sample origins across India.",
+    params: [
+      { name: "page", type: "number", default: 1, description: "Page index [1..N]" },
+      { name: "limit", type: "number", default: 10, description: "Records per query [10..100]" },
+      { name: "search", type: "string", default: "", description: "Metagenome keyword filter" },
+    ],
+  },
+  {
+    id: "get-sample-by-id",
+    category: "Metagenomic Samples",
+    name: "Fetch Record by Accession",
+    method: "GET",
+    path: "/api/samples/:id",
+    entrezCommand: "efetch -db sample -id INDF001",
+    description: "Fetch comprehensive metagenomic sample record metadata by NCBI Accession Code (e.g. INDF001) or Sample ID.",
+    params: [
+      { name: "id", type: "string", default: "INDF001", description: "NCBI Accession Code (e.g. INDF001)" },
+    ],
+  },
+  {
+    id: "get-composition-summary",
+    category: "Microbial Abundance",
+    name: "Dominant Taxa Summary",
+    method: "GET",
+    path: "/api/composition/summary/:sampleId",
+    entrezCommand: "efetch -db composition -id INDF001 -mode summary",
+    description: "Analyze and summarize dominant microbial taxa across all taxonomic ranks for a selected metagenome sample.",
+    params: [
+      { name: "sampleId", type: "string", default: "INDF001", description: "NCBI Accession Code (e.g. INDF001)" },
+    ],
+  },
+  {
+    id: "get-composition-chart",
+    category: "Microbial Abundance",
+    name: "Relative Abundance Breakdown",
+    method: "GET",
+    path: "/api/composition/:id/:rank/chart",
+    entrezCommand: "efetch -db composition -id INDF001 -rank genus",
+    description: "Fetch relative abundance breakdown (% abundance) for a sample at a specific rank (genus, phylum, species, etc.).",
+    params: [
+      { name: "id", type: "string", default: "INDF001", description: "NCBI Accession Code" },
+      { name: "rank", type: "select", default: "genus", options: ["phylum", "class", "order", "family", "genus", "species"], description: "Taxonomic Rank" },
+    ],
+  },
+  {
+    id: "taxonomy-search",
+    category: "NCBI Taxonomy Tree",
+    name: "NCBI Taxonomy Search",
+    method: "GET",
+    path: "/api/taxonomy/search",
+    entrezCommand: "esearch -db taxonomy -term 'Lactococcus'",
+    description: "Search NCBI taxonomy database by scientific name, lineage, or taxonomic rank.",
+    params: [
+      { name: "q", type: "string", default: "Lactococcus", description: "Scientific name query" },
+    ],
+  },
+  {
+    id: "visualization-sunburst",
+    category: "NCBI Taxonomy Tree",
+    name: "Taxonomy Lineage Sunburst",
+    method: "GET",
+    path: "/api/visualization/taxonomy/sunburst",
+    entrezCommand: "efetch -db taxonomy -id INDF001 -format sunburst",
+    description: "Generate multi-level D3 Sunburst hierarchy tree data for a sample or dataset.",
+    params: [
+      { name: "sampleId", type: "string", default: "INDF001", description: "Sample Accession Code (optional)" },
+    ],
+  },
+];

@@ -23,6 +23,22 @@ app.get('/api/docs.json', (req, res) => {
   res.send(swaggerSpec);
 });
 
+// Interactive API Explorer Link / Redirect
+app.get(['/explorer', '/api/explorer'], (req, res) => {
+  const explorerUrl = process.env.FRONTEND_URL || 'http://localhost:5173/explorer';
+  if (req.headers.accept && req.headers.accept.includes('text/html')) {
+    return res.redirect(explorerUrl);
+  }
+  res.json({
+    meta: {
+      title: 'Interactive API Explorer',
+      visualization: 'explorer',
+    },
+    message: 'Interactive API Explorer & Live Visualization Sandbox',
+    url: explorerUrl,
+  });
+});
+
 // Domain API Route mounts
 app.use('/api/samples', sampleRoutes);
 app.use('/api/composition', compositionRoutes);

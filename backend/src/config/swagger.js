@@ -4,7 +4,7 @@ export const swaggerSpec = {
     title: 'Indian Food Microbiome Database API',
     version: '1.0.0',
     description:
-      'Comprehensive RESTful API for searching, analyzing, and visualizing metagenomic profiles, 16S rRNA sequencing data, and taxonomy hierarchies across traditional Indian fermented foods and microbiomes.',
+      'Comprehensive RESTful API for searching, analyzing, and visualizing metagenomic profiles, 16S rRNA sequencing data, and taxonomy hierarchies across traditional Indian fermented foods and microbiomes.\n\n⚡ **Interactive API Explorer & Live Sandbox**: Launch the interactive API Explorer at [http://localhost:5173/explorer](http://localhost:5173/explorer) to execute live API calls, inspect JSON responses, and view synchronized D3 Sunburst & Donut visualizations.',
     contact: {
       name: 'Indian Food Microbiome Team',
       url: 'https://github.com/kprakash18/Database',
@@ -21,6 +21,10 @@ export const swaggerSpec = {
     },
   ],
   tags: [
+    {
+      name: 'Explorer',
+      description: 'Interactive API Explorer sandbox UI (Stripe / NASA style)',
+    },
     {
       name: 'Samples',
       description: 'Food and metagenomic sample record management',
@@ -39,6 +43,47 @@ export const swaggerSpec = {
     },
   ],
   paths: {
+    '/explorer': {
+      get: {
+        tags: ['Explorer'],
+        summary: 'Open the Interactive API Explorer & Visualization Sandbox',
+        description:
+          'Returns connection details for the interactive 3-pane API Explorer sandbox UI (Stripe/NASA style) for live endpoint testing, JSON inspection, and D3 visual rendering.',
+        externalDocs: {
+          description: 'Open Interactive API Explorer UI in Browser',
+          url: 'http://localhost:5173/explorer',
+        },
+        responses: {
+          200: {
+            description: 'API Explorer connection metadata and link',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    meta: {
+                      type: 'object',
+                      properties: {
+                        title: { type: 'string', example: 'Interactive API Explorer' },
+                        visualization: { type: 'string', example: 'explorer' },
+                      },
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Interactive API Explorer & Live Visualization Sandbox',
+                    },
+                    url: {
+                      type: 'string',
+                      example: 'http://localhost:5173/explorer',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     '/samples': {
       get: {
         tags: ['Samples'],
@@ -71,7 +116,13 @@ export const swaggerSpec = {
                 schema: {
                   type: 'object',
                   properties: {
-                    success: { type: 'boolean', example: true },
+                    meta: {
+                      type: 'object',
+                      properties: {
+                        title: { type: 'string', example: 'Food & Metagenomic Samples Directory' },
+                        visualization: { type: 'string', example: 'samples' },
+                      },
+                    },
                     page: { type: 'integer', example: 1 },
                     limit: { type: 'integer', example: 20 },
                     total: { type: 'integer', example: 191 },
@@ -103,7 +154,7 @@ export const swaggerSpec = {
         ],
         responses: {
           200: {
-            description: 'Sample record details',
+            description: 'Sample record details with metadata',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/Sample' },
@@ -131,7 +182,7 @@ export const swaggerSpec = {
         ],
         responses: {
           200: {
-            description: 'Dominant taxa summary by rank',
+            description: 'Dominant taxa summary by rank with meta visualization hint',
           },
         },
       },
@@ -161,7 +212,7 @@ export const swaggerSpec = {
         ],
         responses: {
           200: {
-            description: 'Relative abundance values and labels',
+            description: 'Relative abundance values and labels with meta visualization hint',
           },
         },
       },
@@ -181,7 +232,7 @@ export const swaggerSpec = {
         ],
         responses: {
           200: {
-            description: 'Matching taxonomy terms',
+            description: 'Matching taxonomy terms with meta visualization hint',
           },
         },
       },
@@ -200,7 +251,7 @@ export const swaggerSpec = {
         ],
         responses: {
           200: {
-            description: 'Nested taxonomy hierarchy tree',
+            description: 'Nested taxonomy hierarchy tree with meta visualization hint',
           },
         },
       },
