@@ -12,8 +12,8 @@ export const swaggerSpec = {
   },
   servers: [
     {
-      url: 'http://localhost:5000/api',
-      description: 'Local Development Server',
+      url: 'http://localhost:3000/api',
+      description: 'Local Development Server (Port 3000)',
     },
     {
       url: 'https://indian-food-db.onrender.com/api',
