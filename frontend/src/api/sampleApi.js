@@ -1,7 +1,11 @@
 import apiClient from "./apiClient";
 
-export const getSamples = async () => {
-  const res = await apiClient.get("/getallSamples");
+export const getSamples = async (page, limit) => {
+  const params = {};
+  if (page) params.page = page;
+  if (limit) params.limit = limit;
+
+  const res = await apiClient.get("/getallSamples", { params });
   return res.data;
 };
 

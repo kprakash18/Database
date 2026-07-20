@@ -1,7 +1,28 @@
 import { pool } from "../config/db.js";
 
-export const searchTaxonomy = async (query) => {
+export const searchTaxonomy = async (query, limit = 20, offset = 0) => {
   const searchTerm = `%${query.toLowerCase()}%`;
+
+  const countResult = await pool.query(
+    `
+    SELECT COUNT(*) FROM taxonomy t
+    LEFT JOIN taxonomy_lineage tl ON t.tax_id = tl.tax_id
+    WHERE
+      LOWER(t.name) LIKE $1
+      OR LOWER(t.rank) LIKE $1
+      OR LOWER(COALESCE(tl.domain, '')) LIKE $1
+      OR LOWER(COALESCE(tl.phylum, '')) LIKE $1
+      OR LOWER(COALESCE(tl.class, '')) LIKE $1
+      OR LOWER(COALESCE(tl."order", '')) LIKE $1
+      OR LOWER(COALESCE(tl.family, '')) LIKE $1
+      OR LOWER(COALESCE(tl.genus, '')) LIKE $1
+      OR LOWER(COALESCE(tl.species, '')) LIKE $1
+      OR LOWER(COALESCE(tl.strain, '')) LIKE $1
+    `,
+    [searchTerm]
+  );
+
+  const total = parseInt(countResult.rows[0].count, 10);
 
   const result = await pool.query(
     `
@@ -44,10 +65,10 @@ export const searchTaxonomy = async (query) => {
         ELSE 3
       END,
       t.name ASC
-    LIMIT 30;
+    LIMIT $4 OFFSET $5;
     `,
-    [searchTerm, query, `${query}%`]
+    [searchTerm, query, `${query}%`, limit, offset]
   );
 
-  return result.rows;
+  return { rows: result.rows, total };
 };

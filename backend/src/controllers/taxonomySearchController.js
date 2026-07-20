@@ -1,4 +1,5 @@
 import { searchTaxonomy } from "../services/taxonomySearch.js";
+import { getPaginationParams, formatPaginatedResponse } from "../utils/pagination.js";
 
 export const searchTaxonomyController = async (req, res) => {
   try {
@@ -12,14 +13,15 @@ export const searchTaxonomyController = async (req, res) => {
       });
     }
 
-    const data = await searchTaxonomy(q.trim());
+    const { page, limit, offset } = getPaginationParams(req, 20);
+    const { rows, total } = await searchTaxonomy(q.trim(), limit, offset);
+
+    const paginated = formatPaginatedResponse(rows, total, page, limit);
 
     res.status(200).json({
-      success: true,
-      message: "Taxonomy search completed",
+      ...paginated,
       query: q,
-      count: data.length,
-      data,
+      count: rows.length,
     });
   } catch (err) {
     res.status(500).json({
