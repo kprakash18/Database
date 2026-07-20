@@ -74,7 +74,7 @@ app.get('/api/docs.json', (req, res) => {
 
 // Interactive API Explorer Link / Redirect
 app.get(['/explorer', '/api/explorer'], (req, res) => {
-  const explorerUrl = process.env.FRONTEND_URL || 'http://localhost:5173/explorer';
+  const explorerUrl = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://database-sandy-seven.vercel.app/explorer' : 'http://localhost:5173/explorer');
   if (req.headers.accept && req.headers.accept.includes('text/html')) {
     return res.redirect(explorerUrl);
   }
