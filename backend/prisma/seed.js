@@ -7,6 +7,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fermentedFishSikkimDataset from "./seeds/fermentedFishSikkimSeed.js";
 import fermentedMilkIndiaWestAfricaDataset from "./seeds/fermentedMilkIndiaWestAfricaSeed.js";
+import riceBeerWineMizoramDataset from "./seeds/riceBeerWineMizoramSeed.js";
+import panchagavyaCowDerivativesDataset from "./seeds/panchagavyaCowDerivativesSeed.js";
+import curdRawBoiledMilkAssamDataset from "./seeds/curdRawBoiledMilkAssamSeed.js";
 import { seedFromJsonData } from "./seeds/seedFromJsonSeeder.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,9 +26,12 @@ async function main() {
   const dataset = process.env.DATASET || "dataset1";
   console.log(`=== Starting Seeding for Datasets ===`);
 
-  // Seed data directly from fermentedFishSikkimSeed.js and fermentedMilkIndiaWestAfricaSeed.js
+  // Seed data directly from JSON seed files
   await seedFromJsonData(prisma, fermentedFishSikkimDataset);
   await seedFromJsonData(prisma, fermentedMilkIndiaWestAfricaDataset);
+  await seedFromJsonData(prisma, riceBeerWineMizoramDataset);
+  await seedFromJsonData(prisma, panchagavyaCowDerivativesDataset);
+  await seedFromJsonData(prisma, curdRawBoiledMilkAssamDataset);
 
   // Define the ordered seed files and their respective export function names to execute
   const seedFiles = [
