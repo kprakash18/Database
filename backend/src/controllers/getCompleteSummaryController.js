@@ -1,10 +1,11 @@
 import { getAdvancedCompositionSummary } from "../services/compositionSummary.js";
+import { parseSampleId, formatSampleId } from "../utils/formatters.js";
 
 export const getAdvancedCompositionSummaryController = async (req, res) => {
   try {
-    const sampleId = Number(req.params.sampleId);
+    const sampleId = parseSampleId(req.params.sampleId);
 
-    if (!Number.isInteger(sampleId) || sampleId <= 0) {
+    if (!sampleId) {
       return res.status(400).json({
         success: false,
         message: "Invalid sample id",
@@ -18,6 +19,7 @@ export const getAdvancedCompositionSummaryController = async (req, res) => {
       success: true,
       message: "Advanced composition summary fetched successfully",
       sample_id: sampleId,
+      accession_code: formatSampleId(sampleId),
       data: summary,
     });
   } catch (err) {
