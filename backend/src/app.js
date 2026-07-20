@@ -34,11 +34,20 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
+// Middlewares
+const allowedOrigin =
+  process.env.CORS_ORIGIN ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://database-sandy-seven.vercel.app'
+    : 'http://localhost:5173');
+
 app.use(cors({
-  origin: (origin, callback) => {
-    console.log("CORS request from:", origin);
-    callback(null, true);
-  },
+  origin: allowedOrigin,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+app.options('*', cors({
+  origin: allowedOrigin,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
