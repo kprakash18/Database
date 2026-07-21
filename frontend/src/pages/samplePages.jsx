@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSamples } from "../api/sampleApi";
 import SampleTable from "../components/sampleTable.jsx";
+import { SWAGGER_DOCS_URL } from "../config/api.js";
 
 /* ─────────────────────────────────────────────
    Skeleton loader — matches table structure exactly
@@ -157,7 +158,7 @@ const SamplesPage = () => {
           >
             Taxonomy Tree
           </Link>
-          <a href="/api/docs" target="_blank" rel="noreferrer" style={{
+          <a href={SWAGGER_DOCS_URL} target="_blank" rel="noreferrer" style={{
             fontSize: "var(--text-caption)", fontWeight: 500,
             color: "var(--accent)", textDecoration: "none",
             transition: "color 120ms ease",

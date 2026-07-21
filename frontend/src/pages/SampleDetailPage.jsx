@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { getSampleById } from "../api/sampleApi";
 import { getCompositionSummary } from "../api/compositionApi";
 import CompositionTab from "../components/compositionTab.jsx";
+import { SWAGGER_DOCS_URL, API_BASE_URL } from "../config/api.js";
 
 const NAV_TABS = [
   { key: "record", label: "Record Details" },
@@ -156,7 +157,7 @@ const SampleDetailPage = () => {
             onMouseEnter={e => e.target.style.color = "var(--ink)"}
             onMouseLeave={e => e.target.style.color = "var(--ink-muted)"}
           >API Explorer</Link>
-          <a href="/api/docs" target="_blank" rel="noreferrer" style={{
+          <a href={SWAGGER_DOCS_URL} target="_blank" rel="noreferrer" style={{
             fontSize: "13px", fontWeight: 500, color: "var(--accent)", textDecoration: "none",
             transition: "color 120ms ease",
           }}
@@ -333,7 +334,7 @@ const SampleDetailPage = () => {
             </button>
             <button
               onClick={() => {
-                const specUrl = `${window.location.origin}/api/docs.json`;
+                const specUrl = `${API_BASE_URL}/api/docs.json`;
                 const a = document.createElement("a");
                 a.href = specUrl;
                 a.download = "openapi_specification.json";
@@ -540,7 +541,7 @@ const SampleDetailPage = () => {
                     {
                       label: "Download Data",
                       action: () => {
-                        const specUrl = `${window.location.origin}/api/docs.json`;
+                        const specUrl = `${API_BASE_URL}/api/docs.json`;
                         const a = document.createElement("a");
                         a.href = specUrl;
                         a.download = "openapi_specification.json";
