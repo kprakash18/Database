@@ -35,16 +35,26 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // Middlewares
-const allowedOrigin =
-  process.env.CORS_ORIGIN ||
-  (process.env.NODE_ENV === 'production'
-    ? 'https://database-sandy-seven.vercel.app'
-    : 'http://localhost:5173');
+const allowedOrigins = [
+  'https://database-sandy-seven.vercel.app',
+  'https://database-jvw0.onrender.com',
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+if (process.env.CORS_ORIGIN) {
+  allowedOrigins.push(process.env.CORS_ORIGIN);
+}
 
 app.use(cors({
-  origin: allowedOrigin,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: (origin, callback) => {
+    // Allow non-browser requests (curl, server-to-server) or listed origins
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'production') {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
 }));
 app.use(express.json());
 

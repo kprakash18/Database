@@ -9,6 +9,10 @@
       "destination": "https://database-jvw0.onrender.com/api/docs/$1"
     },
     {
+      "source": "/api/(.*)",
+      "destination": "https://database-jvw0.onrender.com/api/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
