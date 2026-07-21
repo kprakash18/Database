@@ -5,6 +5,7 @@ import { ENDPOINTS } from "../components/explorer/endpointsConfig.js";
 import CodeSnippetGenerator from "../components/explorer/CodeSnippetGenerator.jsx";
 import JsonViewer from "../components/explorer/JsonViewer.jsx";
 import VisualizationRegistry from "../components/explorer/VisualizationRegistry.jsx";
+import { API_BASE_URL, SWAGGER_DOCS_URL } from "../config/api.js";
 
 const getEndpointDefaults = (endpoint) => {
   const defaults = {};
@@ -15,10 +16,7 @@ const getEndpointDefaults = (endpoint) => {
 };
 
 const resolveFullApiUrl = (relativePath) => {
-  const isProd = import.meta.env.MODE === "production";
-  const defaultBaseUrl = isProd ? "https://database-jvw0.onrender.com" : "http://localhost:3000";
-  const apiBase = import.meta.env.VITE_API_BASE_URL || defaultBaseUrl;
-  return `${apiBase}${relativePath}`;
+  return `${API_BASE_URL}${relativePath}`;
 };
 
 const fetchApi = async (relativePath) => {
@@ -347,7 +345,7 @@ const ApiExplorerPage = () => {
           >
             Database
           </Link>
-          <a href="/api/docs" target="_blank" rel="noreferrer" style={{
+          <a href={SWAGGER_DOCS_URL} target="_blank" rel="noreferrer" style={{
             fontSize: "13px", fontWeight: 500, color: "var(--accent)", textDecoration: "none",
             transition: "color 120ms ease",
           }}
