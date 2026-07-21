@@ -4,6 +4,9 @@ const baseFrontendUrl = (process.env.FRONTEND_URL || defaultFrontend).replace(/\
 const explorerUrl = `${baseFrontendUrl}/explorer`;
 const websiteUrl = baseFrontendUrl;
 
+const defaultServerUrl = isProd ? 'https://database-jvw0.onrender.com' : 'http://localhost:3000';
+const serverBaseUrl = (process.env.SERVER_URL || process.env.RENDER_EXTERNAL_URL || defaultServerUrl).replace(/\/$/, '');
+
 export const swaggerSpec = {
   openapi: '3.0.0',
   info: {
@@ -18,7 +21,12 @@ export const swaggerSpec = {
   },
   servers: [
     {
-      url: process.env.NODE_ENV === 'production' ? 'Production' : 'Development',
+      url: `${serverBaseUrl}/api`,
+      description: isProd ? 'Production API Server' : 'Development API Server',
+    },
+    {
+      url: '/api',
+      description: 'Current Server Origin (Relative)',
     },
   ],
   tags: [
