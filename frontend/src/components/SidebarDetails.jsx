@@ -24,7 +24,7 @@ const SidebarDetails = ({ node }) => {
       </div>
 
       <div className="space-y-3 text-sm">
-        <Detail label="Taxonomy ID" value={node?.taxonomyId || node?.ncbiTaxId || "Not available"} />
+        <Detail label="Taxonomy ID" value={node?.ncbiTaxId || "Not available"} />
         <Detail label="Parent" value={node?.parentName || "Root"} />
         {metadataRows.map(([label, key]) => (
           <Detail key={key} label={label} value={details[key] || "Not available"} />
