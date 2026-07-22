@@ -1,6 +1,31 @@
 import fetch from "node-fetch";
 import { parseStringPromise } from "xml2js";
-import { pool } from '../config/db.js' ;
+import { pool, prisma } from '../config/db.js' ;
+
+// Helper to pause execution
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Helper for fetch with exponential backoff retry on HTTP 429 rate limits
+async function fetchWithRetry(url, options = {}, retries = 3, backoffMs = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (response.status === 429) {
+        const waitTime = backoffMs * Math.pow(2, i);
+        console.warn(`WARNING: NCBI rate limit hit (429). Retrying in ${waitTime}ms (Attempt ${i + 1}/${retries})...`);
+        await delay(waitTime);
+        continue;
+      }
+      return response;
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      const waitTime = backoffMs * Math.pow(2, i);
+      console.warn(`WARNING: Fetch network error: ${err.message}. Retrying in ${waitTime}ms (Attempt ${i + 1}/${retries})...`);
+      await delay(waitTime);
+    }
+  }
+  throw new Error(`Failed to fetch after ${retries} retries`);
+}
 
 const TAXONOMY_RANKS = [
   "domain",
@@ -262,51 +287,167 @@ export async function searchSunburstTaxonomy({ query, sampleId = null, limit = 2
 }
 
 export async function fetchNcbiLineageTree(ncbiTaxId) {
+  // 1. Check in-memory cache
   if (ncbiLineageCache.has(ncbiTaxId)) {
     return ncbiLineageCache.get(ncbiTaxId);
   }
 
-  const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&id=${ncbiTaxId}`;
-  const response = await fetch(url);
+  // 2. Check local database first
+  const dbLineage = await prisma.taxonomy_lineage.findFirst({
+    where: { ncbi_tax_id: ncbiTaxId, enrichment_status: "completed" },
+    include: { taxonomy: true }
+  });
 
-  if (!response.ok) {
-    throw new Error(`NCBI request failed with status ${response.status}`);
+  if (dbLineage) {
+    const rows = [{
+      tax_id: dbLineage.tax_id,
+      name: dbLineage.taxonomy?.name || dbLineage.species || dbLineage.genus,
+      rank: dbLineage.taxonomy?.rank,
+      ncbi_tax_id: dbLineage.ncbi_tax_id,
+      relative_abundance: 1,
+      domain: dbLineage.domain,
+      kingdom: dbLineage.domain,
+      phylum: dbLineage.phylum,
+      class: dbLineage.class,
+      order_name: dbLineage.order,
+      family: dbLineage.family,
+      genus: dbLineage.genus,
+      species: dbLineage.species,
+    }];
+
+    const payload = {
+      ranks: TAXONOMY_RANKS,
+      source: "local_db",
+      cached: true,
+      tree: buildTaxonomyTree(rows),
+    };
+    ncbiLineageCache.set(ncbiTaxId, payload);
+    return payload;
   }
 
-  const xml = await response.text();
-  const data = await parseStringPromise(xml);
-  const taxon = data?.TaxaSet?.Taxon?.[0];
+  // 3. Fallback to API if not in DB
+  try {
+    const apiKeyParam = process.env.NCBI_API_KEY ? `&api_key=${process.env.NCBI_API_KEY}` : "";
+    const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&id=${ncbiTaxId}${apiKeyParam}`;
+    const response = await fetchWithRetry(url);
 
-  if (!taxon) {
-    throw new Error("No NCBI taxonomy record found");
-  }
+    if (!response.ok) {
+      throw new Error(`NCBI request failed with status ${response.status}`);
+    }
 
-  const lineage = taxon.LineageEx?.[0]?.Taxon || [];
-  const rows = [
-    {
+    const xml = await response.text();
+    const data = await parseStringPromise(xml);
+    const taxon = data?.TaxaSet?.Taxon?.[0];
+
+    if (!taxon) {
+      throw new Error("No NCBI taxonomy record found");
+    }
+
+    const lineage = taxon.LineageEx?.[0]?.Taxon || [];
+    const allTaxa = [
+      ...lineage,
+      {
+        Rank: taxon.Rank,
+        ScientificName: taxon.ScientificName
+      }
+    ];
+
+    const domainName = allTaxa.find((item) => item.Rank?.[0] === "superkingdom")?.ScientificName?.[0] || "Bacteria";
+    const phylumName = allTaxa.find((item) => item.Rank?.[0] === "phylum")?.ScientificName?.[0] || null;
+    const className = allTaxa.find((item) => item.Rank?.[0] === "class")?.ScientificName?.[0] || null;
+    const orderName = allTaxa.find((item) => item.Rank?.[0] === "order")?.ScientificName?.[0] || null;
+    const familyName = allTaxa.find((item) => item.Rank?.[0] === "family")?.ScientificName?.[0] || null;
+    const genusName = allTaxa.find((item) => item.Rank?.[0] === "genus")?.ScientificName?.[0] || null;
+    const speciesName = allTaxa.find((item) => item.Rank?.[0] === "species")?.ScientificName?.[0] || null;
+
+    const rowObj = {
       tax_id: null,
       name: taxon.ScientificName?.[0],
       rank: taxon.Rank?.[0],
       ncbi_tax_id: Number(taxon.TaxId?.[0]),
       relative_abundance: 1,
-      domain: lineage.find((item) => item.Rank?.[0] === "superkingdom")?.ScientificName?.[0],
-      kingdom: lineage.find((item) => item.Rank?.[0] === "kingdom")?.ScientificName?.[0],
-      phylum: lineage.find((item) => item.Rank?.[0] === "phylum")?.ScientificName?.[0],
-      class: lineage.find((item) => item.Rank?.[0] === "class")?.ScientificName?.[0],
-      order_name: lineage.find((item) => item.Rank?.[0] === "order")?.ScientificName?.[0],
-      family: lineage.find((item) => item.Rank?.[0] === "family")?.ScientificName?.[0],
-      genus: lineage.find((item) => item.Rank?.[0] === "genus")?.ScientificName?.[0],
-      species: taxon.Rank?.[0] === "species" ? taxon.ScientificName?.[0] : null,
-    },
-  ];
+      domain: domainName,
+      kingdom: domainName,
+      phylum: phylumName,
+      class: className,
+      order_name: orderName,
+      family: familyName,
+      genus: genusName,
+      species: speciesName,
+    };
 
-  const payload = {
-    ranks: TAXONOMY_RANKS,
-    source: "ncbi",
-    cached: false,
-    tree: buildTaxonomyTree(rows),
-  };
+    // 4. Save/Persist to DB in background
+    const dbTaxon = await prisma.taxonomy.findFirst({
+      where: { ncbi_tax_id: ncbiTaxId }
+    });
 
-  ncbiLineageCache.set(ncbiTaxId, { ...payload, cached: true });
-  return payload;
+    if (dbTaxon) {
+      await prisma.taxonomy_lineage.upsert({
+        where: { tax_id: dbTaxon.tax_id },
+        update: {
+          domain: domainName,
+          phylum: phylumName,
+          class: className,
+          order: orderName,
+          family: familyName,
+          genus: genusName,
+          species: speciesName,
+          enrichment_status: "completed",
+          last_updated: new Date(),
+        },
+        create: {
+          tax_id: dbTaxon.tax_id,
+          ncbi_tax_id: ncbiTaxId,
+          domain: domainName,
+          phylum: phylumName,
+          class: className,
+          order: orderName,
+          family: familyName,
+          genus: genusName,
+          species: speciesName,
+          enrichment_status: "completed",
+          source: "ncbi",
+        }
+      });
+      rowObj.tax_id = dbTaxon.tax_id;
+    }
+
+    const payload = {
+      ranks: TAXONOMY_RANKS,
+      source: "ncbi",
+      cached: false,
+      tree: buildTaxonomyTree([rowObj]),
+    };
+
+    ncbiLineageCache.set(ncbiTaxId, { ...payload, cached: true });
+    return payload;
+
+  } catch (err) {
+    // 5. Robust Fallback: If NCBI fails but we have the taxon locally, return a stub tree instead of 500ing
+    const localTaxon = await prisma.taxonomy.findFirst({
+      where: { ncbi_tax_id: ncbiTaxId }
+    });
+
+    if (localTaxon) {
+      const fallbackRow = {
+        tax_id: localTaxon.tax_id,
+        name: localTaxon.name,
+        rank: localTaxon.rank,
+        ncbi_tax_id: ncbiTaxId,
+        relative_abundance: 1,
+        domain: "Bacteria",
+        kingdom: "Bacteria",
+      };
+
+      return {
+        ranks: TAXONOMY_RANKS,
+        source: "local_fallback",
+        cached: false,
+        tree: buildTaxonomyTree([fallbackRow]),
+        error: err.message,
+      };
+    }
+
+    throw err;
+  }
 }
