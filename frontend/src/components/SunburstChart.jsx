@@ -311,7 +311,7 @@ const SunburstChart = ({
 
   return (
     <div className="flex items-center justify-center bg-white p-5">
-      <div className="flex aspect-square w-[min(72vw,700px)] min-w-[650px] max-w-[750px] items-center justify-center border border-slate-300 bg-white shadow-xl shadow-slate-300/40 max-[900px]:min-w-0 max-[900px]:w-[min(92vw,680px)]">
+      <div className="flex aspect-square w-[min(72vw,700px)] min-w-162.5 max-w-187.5 items-center justify-center border border-slate-300 bg-white shadow-xl shadow-slate-300/40 max-[900px]:min-w-0 max-[900px]:w-[min(92vw,680px)]">
         <svg ref={svgRef} className="h-full w-full" />
       </div>
     </div>

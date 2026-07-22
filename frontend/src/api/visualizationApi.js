@@ -7,9 +7,10 @@ export const getSunburstTaxonomyTree = async ({ sampleId, limit = 5000 } = {}) =
   return res.data;
 };
 
-export const searchSunburstTaxonomy = async ({ query, sampleId } = {}) => {
+export const searchSunburstTaxonomy = async ({ query, sampleId, signal } = {}) => {
   const res = await apiClient.get("/visualization/taxonomy/search", {
     params: { q: query, sampleId },
+    signal,
   });
   return res.data;
 };

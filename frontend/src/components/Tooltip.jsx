@@ -4,7 +4,7 @@ const Tooltip = ({ tooltip }) => {
   const rows = [
     ["Scientific Name", tooltip.scientificName || tooltip.name],
     ["Taxonomic Rank", tooltip.rank],
-    ["Taxonomy ID", tooltip.taxonomyId || tooltip.ncbiTaxId || "Not available"],
+    ["Taxonomy ID", tooltip.ncbiTaxId || "Not available"],
     ["Parent Name", tooltip.parentName || "Root"],
     ["Child Nodes", tooltip.childCount ?? 0],
   ];
