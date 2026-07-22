@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { getSampleById } from "../api/sampleApi";
 import { getCompositionSummary } from "../api/compositionApi";
 import CompositionTab from "../components/compositionTab.jsx";
@@ -13,6 +13,7 @@ const NAV_TABS = [
 
 const SampleDetailPage = () => {
   const { sampleId } = useParams();
+  const navigate = useNavigate();
   const [sample, setSample] = useState(null);
   const [summary, setSummary] = useState(null);
   const [activeTab, setActiveTab] = useState("record");
@@ -301,7 +302,13 @@ const SampleDetailPage = () => {
             {NAV_TABS.map(({ key, label }) => (
               <button
                 key={key}
-                onClick={() => setActiveTab(key)}
+                onClick={() => {
+                  if (key === "taxonomy") {
+                    navigate(`/taxonomy?sampleId=${sampleId}`);
+                  } else {
+                    setActiveTab(key);
+                  }
+                }}
                 style={{
                   padding: "10px 16px",
                   fontSize: "13px", fontWeight: activeTab === key ? 600 : 500,

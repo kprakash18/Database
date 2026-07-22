@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb.jsx";
 import SearchBar from "../components/SearchBar.jsx";
@@ -6,7 +6,7 @@ import SidebarDetails from "../components/SidebarDetails.jsx";
 import SunburstChart from "../components/SunburstChart.jsx";
 import CollapsibleTreeChart from "../components/CollapsibleTreeChart.jsx";
 import Tooltip from "../components/Tooltip.jsx";
-import { getSunburstTaxonomyTree, searchSunburstTaxonomy } from "../api/visualizationApi.js";
+import { getSunburstTaxonomyTree } from "../api/visualizationApi.js";
 
 const TaxonomyExplorerPage = () => {
   const [searchParams] = useSearchParams();
@@ -21,8 +21,6 @@ const TaxonomyExplorerPage = () => {
   const [highlightPath, setHighlightPath] = useState([]);
   const [selectedNode, setSelectedNode] = useState(null);
   const [tooltip, setTooltip] = useState(null);
-  const [matches, setMatches] = useState([]);
-  const [searching, setSearching] = useState(false);
   const [viewMode, setViewMode] = useState("sunburst");
 
   useEffect(() => {
@@ -43,33 +41,10 @@ const TaxonomyExplorerPage = () => {
     fetchTree();
   }, [sampleId]);
 
-  const handleSearch = useCallback(
-    async (query) => {
-      if (!query) {
-        setMatches([]);
-        setHighlightPath([]);
-        return;
-      }
-
-      try {
-        setSearching(true);
-        const data = await searchSunburstTaxonomy({ query, sampleId });
-        setMatches(data.matches || []);
-      } catch (err) {
-        console.error(err);
-        setMatches([]);
-      } finally {
-        setSearching(false);
-      }
-    },
-    [sampleId]
-  );
-
   const selectMatch = (match) => {
     setFocusPath(match.path);
     setHighlightPath(match.path);
     setBreadcrumb(match.path);
-    setMatches([]);
   };
 
   const selectBreadcrumb = (index) => {
@@ -116,9 +91,7 @@ const TaxonomyExplorerPage = () => {
       <main className="mx-auto max-w-7xl p-5">
         <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_320px]">
           <SearchBar
-            loading={searching}
-            matches={matches}
-            onSearch={handleSearch}
+            sampleId={sampleId}
             onSelectMatch={selectMatch}
           />
           <div className="border border-slate-300 bg-white px-3 py-2 text-sm text-slate-600">
