@@ -14,7 +14,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 if (!isProduction && connectionString && connectionString.includes('supabase')) {
   throw new Error(
-    '💥 SAFETY GUARD BLOCKED STARTUP: Local development environment is attempting to connect to a production Supabase instance! ' +
+    'SAFETY GUARD BLOCKED STARTUP: Local development environment is attempting to connect to a production Supabase instance! ' +
     'Please verify that SUPABASE_URI is commented out or removed from your local .env file.'
   );
 }

@@ -13,7 +13,7 @@ export const swaggerSpec = {
     title: 'Indian Food Microbiome Database API',
     version: '1.0.0',
     description:
-      `Comprehensive RESTful API for searching, analyzing, and visualizing metagenomic profiles, 16S rRNA sequencing data, and taxonomy hierarchies across traditional Indian fermented foods and microbiomes.\n\n⚡ **Interactive API Explorer & Live Sandbox**: Launch the [Interactive API Sandbox](${explorerUrl}) to execute live API calls, inspect JSON responses, and view synchronized D3 Sunburst & Donut visualizations.`,
+      `Comprehensive RESTful API for searching, analyzing, and visualizing metagenomic profiles, 16S rRNA sequencing data, and taxonomy hierarchies across traditional Indian fermented foods and microbiomes.\n\n**Interactive API Explorer & Live Sandbox**: Launch the [Interactive API Sandbox](${explorerUrl}) to execute live API calls, inspect JSON responses, and view synchronized D3 Sunburst & Donut visualizations.`,
     contact: {
       name: 'Indian Food Microbiome Team',
       url: websiteUrl,

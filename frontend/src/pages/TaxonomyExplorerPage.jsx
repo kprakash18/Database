@@ -4,6 +4,7 @@ import Breadcrumb from "../components/Breadcrumb.jsx";
 import SearchBar from "../components/SearchBar.jsx";
 import SidebarDetails from "../components/SidebarDetails.jsx";
 import SunburstChart from "../components/SunburstChart.jsx";
+import CollapsibleTreeChart from "../components/CollapsibleTreeChart.jsx";
 import Tooltip from "../components/Tooltip.jsx";
 import { getSunburstTaxonomyTree, searchSunburstTaxonomy } from "../api/visualizationApi.js";
 
@@ -22,6 +23,7 @@ const TaxonomyExplorerPage = () => {
   const [tooltip, setTooltip] = useState(null);
   const [matches, setMatches] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [viewMode, setViewMode] = useState("sunburst");
 
   useEffect(() => {
     const fetchTree = async () => {
@@ -127,20 +129,55 @@ const TaxonomyExplorerPage = () => {
         <section className="overflow-hidden border border-slate-300 bg-white shadow-sm">
           <Breadcrumb path={breadcrumb} onSelect={selectBreadcrumb} />
 
+          {/* Premium Visual Switcher Tabs */}
+          {!loading && !error && tree && (
+            <div className="flex border-b border-slate-200 bg-slate-50 px-4">
+              <button
+                onClick={() => setViewMode("sunburst")}
+                className={`py-3 px-6 text-sm font-semibold transition-colors focus:outline-none ${
+                  viewMode === "sunburst"
+                    ? "text-blue-700 border-b-2 border-blue-700"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Sunburst Wheel
+              </button>
+              <button
+                onClick={() => setViewMode("tree")}
+                className={`py-3 px-6 text-sm font-semibold transition-colors focus:outline-none ${
+                  viewMode === "tree"
+                    ? "text-blue-700 border-b-2 border-blue-700"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Taxonomy Tree (Collapsible)
+              </button>
+            </div>
+          )}
+
           {loading && <div className="p-8 text-sm text-slate-500">Loading taxonomy visualization...</div>}
           {error && <div className="p-8 text-sm text-red-600">{error}</div>}
 
           {!loading && !error && tree && (
             <div className="grid bg-white lg:grid-cols-[minmax(690px,1fr)_320px]">
-              <SunburstChart
-                data={tree}
-                focusPath={focusPath}
-                highlightPath={highlightPath}
-                labelOrientation={labelOrientation}
-                onBreadcrumbChange={setBreadcrumb}
-                onHover={setTooltip}
-                onSelectNode={setSelectedNode}
-              />
+              {viewMode === "sunburst" ? (
+                <SunburstChart
+                  data={tree}
+                  focusPath={focusPath}
+                  highlightPath={highlightPath}
+                  labelOrientation={labelOrientation}
+                  onBreadcrumbChange={setBreadcrumb}
+                  onHover={setTooltip}
+                  onSelectNode={setSelectedNode}
+                />
+              ) : (
+                <CollapsibleTreeChart
+                  data={tree}
+                  highlightPath={highlightPath}
+                  onHover={setTooltip}
+                  onSelectNode={setSelectedNode}
+                />
+              )}
               <SidebarDetails node={selectedNode} />
             </div>
           )}
