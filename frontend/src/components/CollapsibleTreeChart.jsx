@@ -13,7 +13,7 @@ const CollapsibleTreeChart = ({ data, highlightPath = [], onSelectNode, onHover 
   useEffect(() => {
     if (!data || !svgRef.current) return;
 
-    const width = 900, height = 650, dx = 180, dy = 45;
+    const width = 1000, height = 750, dx = 220, dy = 55;
     const svg = d3.select(svgRef.current)
       .attr("viewBox", [0, 0, width, height])
       .attr("width", "100%")
@@ -117,10 +117,9 @@ const CollapsibleTreeChart = ({ data, highlightPath = [], onSelectNode, onHover 
         .on("mouseover", (event, d) => {
           if (onHover) {
             onHover({
+              ...d.data,
               x: event.clientX,
               y: event.clientY,
-              title: d.data.name,
-              content: `Rank: ${d.data.rank || "Unknown"}\nNCBI ID: ${d.data.ncbiTaxId || "N/A"}`,
             });
           }
         })
@@ -134,9 +133,7 @@ const CollapsibleTreeChart = ({ data, highlightPath = [], onSelectNode, onHover 
         .attr("dy", "0.31em")
         .text((d) => d.data.name)
         .style("font-size", "11px")
-        .clone(true).lower()
-        .attr("stroke", "#ffffff")
-        .attr("stroke-width", 3.5);
+        .style("text-shadow", "0 1.5px 3px #fff, 0 -1.5px 3px #fff, 1.5px 0 3px #fff, -1.5px 0 3px #fff");
 
       const nodeUpdate = node.merge(nodeEnter);
       nodeUpdate.transition().duration(650)

@@ -141,7 +141,7 @@ function stripInternalMaps(node) {
   return node;
 }
 
-function buildTaxonomyTree(rows) {
+async function buildTaxonomyTree(rows) {
   const root = createTreeNode({
     name: "Life",
     rank: "root",
@@ -149,36 +149,52 @@ function buildTaxonomyTree(rows) {
     taxonomyId: "root",
   });
 
+  // Extract all unique taxon names present in the tree payload to batch lookup their IDs
+  const nameSet = new Set();
+  rows.forEach((row) => {
+    TAXONOMY_RANKS.forEach((rank) => {
+      const rawName = rank === "kingdom" ? row.kingdom || row.domain : rank === "order" ? row.order_name : row[rank];
+      const name = normalizeTaxonName(rawName, null);
+      if (name) nameSet.add(name.toLowerCase());
+    });
+  });
+
+  const matchedTaxa = await prisma.taxonomy.findMany({
+    where: { normalized_name: { in: Array.from(nameSet) } },
+    select: { tax_id: true, normalized_name: true, rank: true, ncbi_tax_id: true }
+  });
+
+  const taxaMap = new Map();
+  matchedTaxa.forEach((t) => {
+    taxaMap.set(`${t.rank}:${t.normalized_name}`, { tax_id: t.tax_id, ncbi_tax_id: t.ncbi_tax_id });
+  });
+
   rows.forEach((row) => {
     let parent = root;
     let parentName = root.name;
 
     TAXONOMY_RANKS.forEach((rank) => {
-      const rawName =
-        rank === "kingdom"
-          ? row.kingdom || row.domain
-          : rank === "order"
-            ? row.order_name
-            : row[rank];
-
+      const rawName = rank === "kingdom" ? row.kingdom || row.domain : rank === "order" ? row.order_name : row[rank];
       const name = normalizeTaxonName(rawName, null);
       if (!name) return;
 
       const key = `${rank}:${name.toLowerCase()}`;
+      const dbMatch = taxaMap.get(key) || {};
+      const taxId = dbMatch.tax_id || (rank === row.rank ? row.tax_id : null);
+      const ncbiTaxId = dbMatch.ncbi_tax_id || (rank === row.rank ? row.ncbi_tax_id : null);
+
       parent = getOrCreateChild(parent, key, () =>
         createTreeNode({
           name,
           rank,
           parentName,
-          taxonomyId: rank === row.rank ? row.tax_id : null,
-          ncbiTaxId: rank === row.rank ? row.ncbi_tax_id : null,
+          taxonomyId: taxId,
+          ncbiTaxId: ncbiTaxId,
         })
       );
 
-      if (!parent.taxonomyId && rank === row.rank) {
-        parent.taxonomyId = row.tax_id;
-        parent.ncbiTaxId = row.ncbi_tax_id;
-      }
+      if (!parent.taxonomyId && taxId) parent.taxonomyId = taxId;
+      if (!parent.ncbiTaxId && ncbiTaxId) parent.ncbiTaxId = ncbiTaxId;
 
       parentName = name;
     });
@@ -230,7 +246,7 @@ export async function getSunburstTaxonomyTree({ sampleId = null, limit = 5000 })
   return {
     ranks: TAXONOMY_RANKS,
     totalRows: result.rowCount,
-    tree: buildTaxonomyTree(result.rows),
+    tree: await buildTaxonomyTree(result.rows),
   };
 }
 
@@ -319,7 +335,7 @@ export async function fetchNcbiLineageTree(ncbiTaxId) {
       ranks: TAXONOMY_RANKS,
       source: "local_db",
       cached: true,
-      tree: buildTaxonomyTree(rows),
+      tree: await buildTaxonomyTree(rows),
     };
     ncbiLineageCache.set(ncbiTaxId, payload);
     return payload;
@@ -416,7 +432,7 @@ export async function fetchNcbiLineageTree(ncbiTaxId) {
       ranks: TAXONOMY_RANKS,
       source: "ncbi",
       cached: false,
-      tree: buildTaxonomyTree([rowObj]),
+      tree: await buildTaxonomyTree([rowObj]),
     };
 
     ncbiLineageCache.set(ncbiTaxId, { ...payload, cached: true });
@@ -443,7 +459,7 @@ export async function fetchNcbiLineageTree(ncbiTaxId) {
         ranks: TAXONOMY_RANKS,
         source: "local_fallback",
         cached: false,
-        tree: buildTaxonomyTree([fallbackRow]),
+        tree: await buildTaxonomyTree([fallbackRow]),
         error: err.message,
       };
     }
