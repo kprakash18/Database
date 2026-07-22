@@ -58,8 +58,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ── Health Check Endpoint 
-app.get(['/health', '/api/health'], async (req, res) => {
+// ── Health Check Endpoint (required by Render, Railway, etc.) ──
+app.get('/health', async (req, res) => {
   let dbStatus = 'disconnected';
   try {
     await prisma.$queryRaw`SELECT 1`;
