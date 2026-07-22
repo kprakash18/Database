@@ -296,6 +296,16 @@ const SampleTable = ({
           {/* Page numbers */}
           <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
             <button
+              onClick={() => onPageChange(1)}
+              disabled={page === 1}
+              style={navBtnStyle(page === 1)}
+              onMouseEnter={e => { if (page !== 1) e.target.style.color = "var(--ink)"; }}
+              onMouseLeave={e => { e.target.style.color = page === 1 ? "var(--border-strong)" : "var(--ink-muted)"; }}
+            >
+              « First
+            </button>
+
+            <button
               onClick={() => onPageChange(page - 1)}
               disabled={page === 1}
               style={navBtnStyle(page === 1)}
@@ -335,6 +345,16 @@ const SampleTable = ({
               onMouseLeave={e => { e.target.style.color = page === totalPages ? "var(--border-strong)" : "var(--ink-muted)"; }}
             >
               Next →
+            </button>
+
+            <button
+              onClick={() => onPageChange(totalPages)}
+              disabled={page === totalPages}
+              style={navBtnStyle(page === totalPages)}
+              onMouseEnter={e => { if (page !== totalPages) e.target.style.color = "var(--ink)"; }}
+              onMouseLeave={e => { e.target.style.color = page === totalPages ? "var(--border-strong)" : "var(--ink-muted)"; }}
+            >
+              Last »
             </button>
           </div>
         </div>
