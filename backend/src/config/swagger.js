@@ -31,10 +31,6 @@ export const swaggerSpec = {
   ],
   tags: [
     {
-      name: 'System',
-      description: 'System utility and health status checks',
-    },
-    {
       name: 'Explorer',
       description: 'Interactive API Explorer sandbox UI',
     },
@@ -56,48 +52,6 @@ export const swaggerSpec = {
     },
   ],
   paths: {
-    '/health': {
-      get: {
-        tags: ['System'],
-        summary: 'Get service health and database connectivity status',
-        description: 'Returns the operational status of the API server and verification of connection to the underlying database.',
-        responses: {
-          200: {
-            description: 'System health information and database status',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    status: {
-                      type: 'string',
-                      example: 'ok',
-                      description: 'Overall system API status'
-                    },
-                    database: {
-                      type: 'string',
-                      example: 'connected',
-                      description: 'Database connection status (connected, disconnected, or error)'
-                    },
-                    timestamp: {
-                      type: 'string',
-                      format: 'date-time',
-                      example: '2026-07-22T08:24:15.000Z',
-                      description: 'Current UTC timestamp on the server'
-                    },
-                    environment: {
-                      type: 'string',
-                      example: 'development',
-                      description: 'Node environment mode the server is running in'
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     '/explorer': {
       get: {
         tags: ['Explorer'],
