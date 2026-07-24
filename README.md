@@ -3,7 +3,7 @@
 A full-stack research platform for storing, searching, and visualising bacterial composition data from traditional Indian fermented foods.
 
 🌐 **Live** → [database-sandy-seven.vercel.app](https://database-sandy-seven.vercel.app)  
-📡 **BASE API** → [database-jvw0.onrender.com](https://database-jvw0.onrender.com)  
+📡 **BASE URL** → [database-jvw0.onrender.com](https://database-jvw0.onrender.com/api)  
 📖 **API Docs** → [/api/docs](https://database-jvw0.onrender.com/api/docs)
 
 ---
