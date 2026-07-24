@@ -3,7 +3,7 @@
 A full-stack research platform for storing, searching, and visualising bacterial composition data from traditional Indian fermented foods.
 
 🌐 **Live** → [database-sandy-seven.vercel.app](https://database-sandy-seven.vercel.app)  
-📡 **API** → [database-jvw0.onrender.com](https://database-jvw0.onrender.com)  
+📡 **BASE API** → [database-jvw0.onrender.com](https://database-jvw0.onrender.com)  
 📖 **API Docs** → [/api/docs](https://database-jvw0.onrender.com/api/docs)
 
 ---
@@ -123,7 +123,7 @@ Frontend runs on `http://localhost:5173`.
 | `PORT` | Server port (default: 3000) |
 | `FRONTEND_URL` | Frontend origin for CORS and redirects |
 
-> ⚠️ **Safety Guard**: The backend refuses to start if `SUPABASE_URI` is set outside production. This prevents accidental writes to the live database.
+> **Safety Guard**: The backend will not start if `SUPABASE_URI` is set outside production. This prevents accidental writes to the live database.
 
 ### Frontend (`.env`)
 
@@ -234,6 +234,3 @@ Key design decisions:
 
 ---
 
-## License
-
-ISC
